@@ -17,6 +17,8 @@ function Dashboard() {
     const [activeTab, setActiveTab] = useState('workouts');
     const [syncing, setSyncing] = useState(false);
     const [syncMessage, setSyncMessage] = useState(null);
+    const [dateFilter, setDateFilter] = useState('all'); // 'thisWeek', 'nextWeek', 'all'
+    const [sortOrder, setSortOrder] = useState('asc'); // 'asc' = closest first, 'desc' = furthest first
 
     useEffect(() => {
         // Check for token in URL (redirect from OAuth)
@@ -250,11 +252,71 @@ function Dashboard() {
                                 </button>
                             </div>
                         ) : (
-                            <div className="workouts-grid">
-                                {workouts.map((workout) => (
-                                    <WorkoutCard key={workout.id} workout={workout} />
-                                ))}
-                            </div>
+                            <>
+                                {/* Filters */}
+                                <div className="filters-bar">
+                                    <div className="filter-group">
+                                        <label>Período:</label>
+                                        <select
+                                            value={dateFilter}
+                                            onChange={(e) => setDateFilter(e.target.value)}
+                                            className="filter-select"
+                                        >
+                                            <option value="all">Todos</option>
+                                            <option value="thisWeek">Esta semana</option>
+                                            <option value="nextWeek">Próxima semana</option>
+                                            <option value="thisMonth">Este mês</option>
+                                        </select>
+                                    </div>
+                                    <div className="filter-group">
+                                        <label>Ordenar:</label>
+                                        <select
+                                            value={sortOrder}
+                                            onChange={(e) => setSortOrder(e.target.value)}
+                                            className="filter-select"
+                                        >
+                                            <option value="asc">Mais próximos primeiro</option>
+                                            <option value="desc">Mais distantes primeiro</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="workouts-grid">
+                                    {workouts
+                                        .filter(workout => {
+                                            if (dateFilter === 'all') return true;
+                                            const workoutDate = new Date(workout.data);
+                                            const today = new Date();
+                                            today.setHours(0, 0, 0, 0);
+
+                                            if (dateFilter === 'thisWeek') {
+                                                const endOfWeek = new Date(today);
+                                                endOfWeek.setDate(today.getDate() + (7 - today.getDay()));
+                                                return workoutDate >= today && workoutDate <= endOfWeek;
+                                            }
+                                            if (dateFilter === 'nextWeek') {
+                                                const startOfNextWeek = new Date(today);
+                                                startOfNextWeek.setDate(today.getDate() + (7 - today.getDay()) + 1);
+                                                const endOfNextWeek = new Date(startOfNextWeek);
+                                                endOfNextWeek.setDate(startOfNextWeek.getDate() + 6);
+                                                return workoutDate >= startOfNextWeek && workoutDate <= endOfNextWeek;
+                                            }
+                                            if (dateFilter === 'thisMonth') {
+                                                return workoutDate.getMonth() === today.getMonth() &&
+                                                    workoutDate.getFullYear() === today.getFullYear();
+                                            }
+                                            return true;
+                                        })
+                                        .sort((a, b) => {
+                                            const dateA = new Date(a.data);
+                                            const dateB = new Date(b.data);
+                                            return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+                                        })
+                                        .map((workout) => (
+                                            <WorkoutCard key={workout.id} workout={workout} />
+                                        ))}
+                                </div>
+                            </>
                         )}
                     </>
                 )}

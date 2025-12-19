@@ -394,6 +394,56 @@
     box-shadow: 0 4px 15px rgba(252, 76, 2, 0.3);
 }
 
+/* Filters Bar */
+.filters-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+}
+
+.filter-select {
+    padding: 0.5rem 0.75rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-select:hover {
+    border-color: rgba(252, 76, 2, 0.4);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #fc4c02;
+    box-shadow: 0 0 0 2px rgba(252, 76, 2, 0.2);
+}
+
+.filter-select option {
+    background: #1a1a2e;
+    color: #fff;
+}
+
 /* Activities Grid */
 .activities-grid {
     display: grid;
