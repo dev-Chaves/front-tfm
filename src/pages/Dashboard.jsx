@@ -46,6 +46,7 @@ function Dashboard() {
             setLoading(true);
             setError(null);
             const data = await api.getWorkouts();
+            console.log('📋 Workouts API Response:', data);
             setWorkouts(data);
         } catch (err) {
             console.error('Error loading workouts:', err);

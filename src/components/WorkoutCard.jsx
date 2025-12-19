@@ -3,19 +3,28 @@ import './WorkoutCard.css';
 
 function WorkoutCard({ workout }) {
     const [expanded, setExpanded] = useState(false);
+    const [showHowTo, setShowHowTo] = useState(false);
 
     const {
         id,
         data,
         status,
-        description,
         tipo,
         distancia_planejada,
         pace_planejado,
         distancia_realizada,
         pace_realizado,
         coach,
-        structure // New AI structure
+        // New structure fields
+        titulo,
+        objetivo_sessao,
+        distancia_total_km,
+        tempo_estimado_min,
+        fases,
+        dicas_execucao,
+        sensacao_esperada,
+        contexto_semana,
+        mensagem_coach
     } = workout;
 
     const formatDate = (dateStr) => {
@@ -62,15 +71,15 @@ function WorkoutCard({ workout }) {
         return 'score-low';
     };
 
-    // Get title from new structure or fallback to tipo
-    const titulo = structure?.titulo || tipo;
-    const objetivoSessao = structure?.objetivo_sessao;
-    const fases = structure?.fases;
-    const dicasExecucao = structure?.dicas_execucao;
-    const sensacaoEsperada = structure?.sensacao_esperada;
+    // Get values with fallbacks
+    const displayTitulo = titulo || tipo || 'Treino';
+    const displayDistancia = distancia_total_km || distancia_planejada;
+    const displayTempo = tempo_estimado_min;
+    const zonaFC = fases?.principal?.zona_fc;
 
     return (
-        <div className={`workout-card ${statusConfig.class} ${expanded ? 'expanded' : ''}`}>
+        <div className={`workout-card ${statusConfig.class}`}>
+            {/* Header */}
             <div className="card-header">
                 <div className="date-badge">
                     {formatDate(data)}
@@ -81,140 +90,176 @@ function WorkoutCard({ workout }) {
                 </div>
             </div>
 
-            {/* Título do treino */}
-            <div className="card-title-section">
-                <h3 className="card-title">{titulo}</h3>
-                {objetivoSessao && (
-                    <p className="card-objective">{objetivoSessao}</p>
+            {/* Title Block */}
+            <div className="title-block">
+                <h3 className="card-title">{displayTitulo}</h3>
+                {objetivo_sessao && (
+                    <p className="card-objective">{objetivo_sessao}</p>
                 )}
             </div>
 
-            {/* Métricas resumidas */}
-            <div className="metrics-summary">
-                <div className="metric-chip">
-                    <span className="chip-icon">📏</span>
-                    <span>{distancia_planejada} km</span>
-                </div>
-                <div className="metric-chip">
-                    <span className="chip-icon">⏱️</span>
-                    <span>{pace_planejado}/km</span>
-                </div>
+            {/* Quick Stats */}
+            <div className="quick-stats">
+                {displayDistancia && (
+                    <div className="stat-pill">
+                        <span className="pill-icon">🏃</span>
+                        <span>{displayDistancia} km</span>
+                    </div>
+                )}
+                {displayTempo && (
+                    <div className="stat-pill">
+                        <span className="pill-icon">⏱️</span>
+                        <span>{displayTempo} min</span>
+                    </div>
+                )}
+                {zonaFC && (
+                    <div className="stat-pill zona-pill">
+                        <span className="pill-icon">💓</span>
+                        <span>Zona {zonaFC}</span>
+                    </div>
+                )}
             </div>
 
-            {/* Fases do treino (expandível) */}
+            {/* Phases Timeline */}
             {fases && (
-                <>
-                    <button
-                        className="expand-btn"
-                        onClick={() => setExpanded(!expanded)}
-                    >
-                        {expanded ? '▲ Ocultar detalhes' : '▼ Ver detalhes do treino'}
-                    </button>
-
-                    {expanded && (
-                        <div className="phases-section">
-                            {/* Aquecimento */}
-                            {fases.aquecimento && (
-                                <div className="phase-block warmup">
-                                    <div className="phase-header">
-                                        <span className="phase-icon">🔥</span>
-                                        <span className="phase-title">Aquecimento</span>
-                                        {fases.aquecimento.duracao_min && (
-                                            <span className="phase-duration">{fases.aquecimento.duracao_min} min</span>
-                                        )}
-                                    </div>
-                                    {fases.aquecimento.pace_sugerido && (
-                                        <p className="phase-detail">Pace: {fases.aquecimento.pace_sugerido}</p>
-                                    )}
-                                    {fases.aquecimento.descricao && (
-                                        <p className="phase-description">{fases.aquecimento.descricao}</p>
+                <div className="phases-timeline">
+                    {/* Aquecimento */}
+                    {fases.aquecimento && (
+                        <div className="phase-item phase-warmup">
+                            <div className="phase-marker"></div>
+                            <div className="phase-content">
+                                <div className="phase-header">
+                                    <span className="phase-icon">🌡️</span>
+                                    <span className="phase-title">Aquecimento</span>
+                                    {fases.aquecimento.duracao_min && (
+                                        <span className="phase-duration">{fases.aquecimento.duracao_min} min</span>
                                     )}
                                 </div>
-                            )}
-
-                            {/* Principal */}
-                            {fases.principal && (
-                                <div className="phase-block main">
-                                    <div className="phase-header">
-                                        <span className="phase-icon">💪</span>
-                                        <span className="phase-title">Principal</span>
-                                    </div>
-
-                                    {/* Séries de intervalo */}
-                                    {fases.principal.series && fases.principal.series.length > 0 && (
-                                        <div className="series-list">
-                                            {fases.principal.series.map((serie, idx) => (
-                                                <div key={idx} className="serie-item">
-                                                    <span className="serie-reps">
-                                                        {serie.repeticoes}x {serie.distancia_m}m
-                                                    </span>
-                                                    <span className="serie-pace">@ {serie.pace_alvo}</span>
-                                                    {serie.descanso_duracao && (
-                                                        <span className="serie-rest">
-                                                            | Descanso: {serie.descanso_duracao} ({serie.descanso_tipo || 'parado'})
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    {/* Como executar */}
-                                    {fases.principal.como_executar && fases.principal.como_executar.length > 0 && (
-                                        <div className="execution-steps">
-                                            <p className="steps-title">Como executar:</p>
-                                            {fases.principal.como_executar.map((step, idx) => (
-                                                <p key={idx} className="step-item">{step}</p>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Desaquecimento */}
-                            {fases.desaquecimento && (
-                                <div className="phase-block cooldown">
-                                    <div className="phase-header">
-                                        <span className="phase-icon">❄️</span>
-                                        <span className="phase-title">Desaquecimento</span>
-                                        {fases.desaquecimento.duracao_min && (
-                                            <span className="phase-duration">{fases.desaquecimento.duracao_min} min</span>
-                                        )}
-                                    </div>
-                                    {fases.desaquecimento.descricao && (
-                                        <p className="phase-description">{fases.desaquecimento.descricao}</p>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Dicas de execução */}
-                            {dicasExecucao && dicasExecucao.length > 0 && (
-                                <div className="tips-section">
-                                    <span className="tips-icon">💡</span>
-                                    <span className="tips-text">
-                                        {dicasExecucao.join(' • ')}
-                                    </span>
-                                </div>
-                            )}
-
-                            {/* Sensação esperada */}
-                            {sensacaoEsperada && (
-                                <div className="feeling-section">
-                                    <span className="feeling-icon">🎯</span>
-                                    <span className="feeling-text">{sensacaoEsperada}</span>
-                                </div>
-                            )}
+                                <p className="phase-desc">{fases.aquecimento.descricao}</p>
+                                {fases.aquecimento.pace_sugerido && (
+                                    <span className="phase-pace">Pace: {fases.aquecimento.pace_sugerido}</span>
+                                )}
+                            </div>
                         </div>
                     )}
-                </>
+
+                    {/* Principal */}
+                    {fases.principal && (
+                        <div className="phase-item phase-main">
+                            <div className="phase-marker"></div>
+                            <div className="phase-content">
+                                <div className="phase-header">
+                                    <span className="phase-icon">🎯</span>
+                                    <span className="phase-title">Principal</span>
+                                </div>
+
+                                {fases.principal.descricao_geral && (
+                                    <p className="phase-desc">{fases.principal.descricao_geral}</p>
+                                )}
+
+                                {/* Series Card */}
+                                {fases.principal.tipo_estrutura === 'intervalado' && fases.principal.series?.length > 0 && (
+                                    <div className="series-card">
+                                        {fases.principal.series.map((serie, idx) => (
+                                            <div key={idx} className="serie-row">
+                                                <span className="serie-main">
+                                                    {serie.repeticoes}x {serie.distancia_m}m @ {serie.pace_alvo}
+                                                </span>
+                                                {serie.descanso_duracao && (
+                                                    <span className="serie-rest">
+                                                        Descanso: {serie.descanso_duracao} ({serie.descanso_tipo || 'parado'})
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Continuous pace */}
+                                {fases.principal.tipo_estrutura === 'continuo' && fases.principal.pace_alvo && (
+                                    <div className="continuous-pace">
+                                        Pace alvo: <strong>{fases.principal.pace_alvo}</strong>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Desaquecimento */}
+                    {fases.desaquecimento && (
+                        <div className="phase-item phase-cooldown">
+                            <div className="phase-marker"></div>
+                            <div className="phase-content">
+                                <div className="phase-header">
+                                    <span className="phase-icon">❄️</span>
+                                    <span className="phase-title">Desaquecimento</span>
+                                    {fases.desaquecimento.duracao_min && (
+                                        <span className="phase-duration">{fases.desaquecimento.duracao_min} min</span>
+                                    )}
+                                </div>
+                                <p className="phase-desc">{fases.desaquecimento.descricao}</p>
+                                {fases.desaquecimento.pace_sugerido && (
+                                    <span className="phase-pace">Pace: {fases.desaquecimento.pace_sugerido}</span>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
             )}
 
-            {/* Fallback para treinos sem structure */}
-            {!fases && description && (
-                <p className="card-description">{description}</p>
+            {/* How To Execute - Collapsible */}
+            {fases?.principal?.como_executar?.length > 0 && (
+                <div className="howto-section">
+                    <button
+                        className="howto-toggle"
+                        onClick={() => setShowHowTo(!showHowTo)}
+                    >
+                        <span className="howto-icon">📋</span>
+                        <span className="howto-title">Como Executar</span>
+                        <span className="howto-arrow">{showHowTo ? '▲' : '▼'}</span>
+                    </button>
+                    {showHowTo && (
+                        <div className="howto-content">
+                            {fases.principal.como_executar.map((step, idx) => (
+                                <p key={idx} className="howto-step">{step}</p>
+                            ))}
+                        </div>
+                    )}
+                </div>
             )}
 
-            {/* Resultados (quando concluído) */}
+            {/* Coach Tips - Chips */}
+            {dicas_execucao?.length > 0 && (
+                <div className="tips-section">
+                    <span className="tips-label">💡 Dicas:</span>
+                    <div className="tips-chips">
+                        {dicas_execucao.map((dica, idx) => (
+                            <span key={idx} className="tip-chip">{dica}</span>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Expected Feeling */}
+            {sensacao_esperada && (
+                <div className="feeling-callout">
+                    <span className="feeling-icon">🧠</span>
+                    <p className="feeling-text">{sensacao_esperada}</p>
+                </div>
+            )}
+
+            {/* Coach Message Bubble */}
+            {mensagem_coach && (
+                <div className="coach-bubble">
+                    <div className="bubble-avatar">🤖</div>
+                    <div className="bubble-content">
+                        <span className="bubble-label">Coach:</span>
+                        <p className="bubble-message">{mensagem_coach}</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Results (when completed) */}
             {effectiveStatus === 'Concluido' && distancia_realizada && (
                 <div className="results-section">
                     <div className="results-header">
@@ -229,48 +274,49 @@ function WorkoutCard({ workout }) {
                 </div>
             )}
 
-            {/* Feedback do Coach IA */}
+            {/* Coach Feedback (post workout) */}
             {coach && (
-                <div className="coach-section">
-                    <div className="coach-header">
-                        <span className="coach-icon">🤖</span>
-                        <span className="coach-title">
-                            {coach.titulo_feedback || 'Coach IA'}
+                <div className="coach-feedback">
+                    <div className="feedback-header">
+                        {coach.emoji && <span className="feedback-emoji">{coach.emoji}</span>}
+                        <span className="feedback-title">
+                            {coach.titulo_feedback || 'Feedback do Coach'}
                         </span>
                         {coach.pontuacao && (
-                            <span className={`coach-score ${getScoreColor(coach.pontuacao)}`}>
+                            <span className={`feedback-score ${getScoreColor(coach.pontuacao)}`}>
                                 {coach.pontuacao}/10
                             </span>
                         )}
                     </div>
 
                     {coach.comentario && (
-                        <p className="coach-comment">{coach.comentario}</p>
+                        <p className="feedback-comment">{coach.comentario}</p>
                     )}
 
                     {coach.analise_splits && (
-                        <p className="coach-splits">{coach.analise_splits}</p>
+                        <div className="feedback-splits">{coach.analise_splits}</div>
                     )}
 
                     {coach.aspectos_positivos?.length > 0 && (
-                        <div className="coach-tags positive">
-                            {coach.aspectos_positivos.slice(0, 2).map((item, i) => (
-                                <span key={i} className="coach-tag">✓ {item}</span>
+                        <div className="feedback-tags positive">
+                            {coach.aspectos_positivos.map((item, i) => (
+                                <span key={i} className="feedback-tag">✓ {item}</span>
                             ))}
                         </div>
                     )}
 
                     {coach.areas_melhoria?.length > 0 && (
-                        <div className="coach-tags improvement">
-                            {coach.areas_melhoria.slice(0, 2).map((item, i) => (
-                                <span key={i} className="coach-tag">○ {item}</span>
+                        <div className="feedback-tags improvement">
+                            {coach.areas_melhoria.map((item, i) => (
+                                <span key={i} className="feedback-tag">○ {item}</span>
                             ))}
                         </div>
                     )}
 
                     {coach.dica_proxima && (
-                        <div className="coach-next-tip">
-                            <span>💡 Próximo treino:</span> {coach.dica_proxima}
+                        <div className="feedback-next">
+                            <span className="next-icon">💡</span>
+                            <span>{coach.dica_proxima}</span>
                         </div>
                     )}
                 </div>
