@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setToken, getToken, removeToken, api } from '../services/api';
 import WorkoutCard from '../components/WorkoutCard';
+import ActivityCard from '../components/ActivityCard';
+import GoalModal from '../components/GoalModal';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -10,6 +12,9 @@ function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFirstLogin, setIsFirstLogin] = useState(false);
+    const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+    const [activities, setActivities] = useState([]);
+    const [activeTab, setActiveTab] = useState('workouts');
 
     useEffect(() => {
         // Check for token in URL (redirect from OAuth)
@@ -31,6 +36,7 @@ function Dashboard() {
         }
 
         loadWorkouts();
+        loadActivities();
     }, [navigate]);
 
     const loadWorkouts = async () => {
@@ -44,6 +50,15 @@ function Dashboard() {
             setError('Erro ao carregar treinos. Tente novamente.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadActivities = async () => {
+        try {
+            const data = await api.getActivities();
+            setActivities(data);
+        } catch (err) {
+            console.error('Error loading activities:', err);
         }
     };
 
@@ -64,6 +79,10 @@ function Dashboard() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleSaveGoal = async (goalData) => {
+        await api.updateGoal(goalData);
     };
 
     const getStatusCounts = () => {
@@ -89,6 +108,9 @@ function Dashboard() {
                     <span className="logo-text">TFM</span>
                 </div>
                 <div className="nav-actions">
+                    <button className="btn-secondary" onClick={() => setIsGoalModalOpen(true)}>
+                        🎯 Minha Meta
+                    </button>
                     <button className="btn-secondary" onClick={handleGeneratePlan}>
                         ✨ Gerar Novo Plano
                     </button>
@@ -135,30 +157,74 @@ function Dashboard() {
                     </div>
                 )}
 
-                {loading ? (
-                    <div className="loading-state">
-                        <div className="loading-spinner"></div>
-                        <p>Carregando treinos...</p>
-                    </div>
-                ) : workouts.length === 0 ? (
-                    <div className="empty-state">
-                        <div className="empty-icon">📋</div>
-                        <h3>Nenhum treino encontrado</h3>
-                        <p>Clique em "Gerar Novo Plano" para criar seu primeiro plano de treinos com IA!</p>
-                        <button className="btn-primary" onClick={handleGeneratePlan}>
-                            ✨ Gerar Plano de Treinos
-                        </button>
-                    </div>
-                ) : (
-                    <div className="workouts-grid">
-                        {workouts.map((workout) => (
-                            <WorkoutCard key={workout.id} workout={workout} />
-                        ))}
-                    </div>
+                <div className="tabs-container">
+                    <button
+                        className={`tab-btn ${activeTab === 'workouts' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('workouts')}
+                    >
+                        📋 Treinos Planejados
+                    </button>
+                    <button
+                        className={`tab-btn ${activeTab === 'activities' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('activities')}
+                    >
+                        🏃 Atividades Realizadas ({activities.length})
+                    </button>
+                </div>
+
+                {activeTab === 'workouts' && (
+                    <>
+                        {loading ? (
+                            <div className="loading-state">
+                                <div className="loading-spinner"></div>
+                                <p>Carregando treinos...</p>
+                            </div>
+                        ) : workouts.length === 0 ? (
+                            <div className="empty-state">
+                                <div className="empty-icon">📋</div>
+                                <h3>Nenhum treino encontrado</h3>
+                                <p>Clique em "Gerar Novo Plano" para criar seu primeiro plano de treinos com IA!</p>
+                                <button className="btn-primary" onClick={handleGeneratePlan}>
+                                    ✨ Gerar Plano de Treinos
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="workouts-grid">
+                                {workouts.map((workout) => (
+                                    <WorkoutCard key={workout.id} workout={workout} />
+                                ))}
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {activeTab === 'activities' && (
+                    <>
+                        {activities.length === 0 ? (
+                            <div className="empty-state">
+                                <div className="empty-icon">🏃</div>
+                                <h3>Nenhuma atividade encontrada</h3>
+                                <p>Suas atividades do Strava aparecerão aqui após sincronização.</p>
+                            </div>
+                        ) : (
+                            <div className="activities-grid">
+                                {activities.map((activity) => (
+                                    <ActivityCard key={activity.id} activity={activity} />
+                                ))}
+                            </div>
+                        )}
+                    </>
                 )}
             </main>
+
+            <GoalModal
+                isOpen={isGoalModalOpen}
+                onClose={() => setIsGoalModalOpen(false)}
+                onSave={handleSaveGoal}
+            />
         </div>
     );
 }
 
 export default Dashboard;
+
