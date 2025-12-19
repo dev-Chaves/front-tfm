@@ -15,6 +15,8 @@ function Dashboard() {
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
     const [activities, setActivities] = useState([]);
     const [activeTab, setActiveTab] = useState('workouts');
+    const [syncing, setSyncing] = useState(false);
+    const [syncMessage, setSyncMessage] = useState(null);
 
     useEffect(() => {
         // Check for token in URL (redirect from OAuth)
@@ -94,6 +96,29 @@ function Dashboard() {
         await api.updateGoal(goalData);
     };
 
+    const handleSync = async () => {
+        try {
+            setSyncing(true);
+            setSyncMessage(null);
+            const result = await api.getActivities();
+            // Handle the sync response
+            if (result && result.new_activities_linked !== undefined) {
+                setSyncMessage(`✅ ${result.message || 'Sincronização realizada!'} (${result.new_activities_linked} novas atividades)`);
+            } else {
+                setSyncMessage('✅ Sincronização realizada!');
+            }
+            // Reload activities after sync
+            await loadActivities();
+        } catch (err) {
+            console.error('Error syncing:', err);
+            setSyncMessage('❌ Erro ao sincronizar. Tente novamente.');
+        } finally {
+            setSyncing(false);
+            // Clear message after 5 seconds
+            setTimeout(() => setSyncMessage(null), 5000);
+        }
+    };
+
     const getStatusCounts = () => {
         const counts = { Pendente: 0, Concluido: 0, Perdido: 0 };
         workouts.forEach(w => {
@@ -117,6 +142,9 @@ function Dashboard() {
                     <span className="logo-text">TFM</span>
                 </div>
                 <div className="nav-actions">
+                    <button className="btn-sync" onClick={handleSync} disabled={syncing}>
+                        {syncing ? '🔄 Sincronizando...' : '🔄 Sincronizar Strava'}
+                    </button>
                     <button className="btn-secondary" onClick={() => setIsGoalModalOpen(true)}>
                         🎯 Minha Meta
                     </button>
@@ -128,6 +156,12 @@ function Dashboard() {
                     </button>
                 </div>
             </nav>
+
+            {syncMessage && (
+                <div className={`sync-message ${syncMessage.includes('❌') ? 'sync-error' : 'sync-success'}`}>
+                    {syncMessage}
+                </div>
+            )}
 
             <main className="dashboard-content">
                 {isFirstLogin && (
