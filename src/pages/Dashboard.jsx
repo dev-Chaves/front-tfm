@@ -121,8 +121,25 @@ function Dashboard() {
 
     const getStatusCounts = () => {
         const counts = { Pendente: 0, Concluido: 0, Perdido: 0 };
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
         workouts.forEach(w => {
-            if (counts[w.status] !== undefined) counts[w.status]++;
+            // Calculate effective status based on date
+            let effectiveStatus = w.status;
+
+            if (w.status !== 'Concluido') {
+                const workoutDate = new Date(w.data);
+                workoutDate.setHours(0, 0, 0, 0);
+
+                if (workoutDate >= today) {
+                    effectiveStatus = 'Pendente';
+                } else {
+                    effectiveStatus = 'Perdido';
+                }
+            }
+
+            if (counts[effectiveStatus] !== undefined) counts[effectiveStatus]++;
         });
         return counts;
     };
