@@ -5,6 +5,10 @@ function WorkoutCard({ workout }) {
     const [expanded, setExpanded] = useState(false);
     const [showHowTo, setShowHowTo] = useState(false);
 
+    // Debug: log workout data
+    console.log('🏋️ Workout data:', workout);
+
+    // Extract base fields
     const {
         id,
         data,
@@ -15,17 +19,21 @@ function WorkoutCard({ workout }) {
         distancia_realizada,
         pace_realizado,
         coach,
-        // New structure fields
-        titulo,
-        objetivo_sessao,
-        distancia_total_km,
-        tempo_estimado_min,
-        fases,
-        dicas_execucao,
-        sensacao_esperada,
-        contexto_semana,
-        mensagem_coach
+        structure, // Backend may nest data here
+        description
     } = workout;
+
+    // Try to get fields from structure first, then from workout directly
+    const s = structure || {};
+    const titulo = s.titulo || workout.titulo || tipo;
+    const objetivo_sessao = s.objetivo_sessao || workout.objetivo_sessao;
+    const distancia_total_km = s.distancia_total_km || workout.distancia_total_km || distancia_planejada;
+    const tempo_estimado_min = s.tempo_estimado_min || workout.tempo_estimado_min;
+    const fases = s.fases || workout.fases;
+    const dicas_execucao = s.dicas_execucao || workout.dicas_execucao;
+    const sensacao_esperada = s.sensacao_esperada || workout.sensacao_esperada;
+    const contexto_semana = s.contexto_semana || workout.contexto_semana;
+    const mensagem_coach = s.mensagem_coach || workout.mensagem_coach;
 
     const formatDate = (dateStr) => {
         const date = new Date(dateStr);
