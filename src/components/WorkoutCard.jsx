@@ -5,9 +5,6 @@ function WorkoutCard({ workout }) {
     const [expanded, setExpanded] = useState(false);
     const [showHowTo, setShowHowTo] = useState(false);
 
-    // Debug: log workout data
-    console.log('🏋️ Workout data:', workout);
-
     // Extract base fields
     const {
         id,
@@ -34,6 +31,7 @@ function WorkoutCard({ workout }) {
     const sensacao_esperada = s.sensacao_esperada || workout.sensacao_esperada;
     const contexto_semana = s.contexto_semana || workout.contexto_semana;
     const mensagem_coach = s.mensagem_coach || workout.mensagem_coach;
+    const foco_semana = s.foco_semana || workout.foco_semana;
 
     const formatDate = (dateStr) => {
         const date = new Date(dateStr);
@@ -103,6 +101,13 @@ function WorkoutCard({ workout }) {
                 <h3 className="card-title">{displayTitulo}</h3>
                 {objetivo_sessao && (
                     <p className="card-objective">{objetivo_sessao}</p>
+                )}
+                {foco_semana && foco_semana.length > 0 && (
+                    <div className="focus-badges">
+                        {foco_semana.map((foco, idx) => (
+                            <span key={idx} className="focus-badge">{foco}</span>
+                        ))}
+                    </div>
                 )}
             </div>
 

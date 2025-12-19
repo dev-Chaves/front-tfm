@@ -9,6 +9,7 @@ function GoalModal({ isOpen, onClose, onSave }) {
         raceDate: '',
         currentLevel: 'intermediario',
         weeklyAvailability: 4,
+        availableDays: [],
         additionalNotes: ''
     });
     const [saving, setSaving] = useState(false);
@@ -19,6 +20,25 @@ function GoalModal({ isOpen, onClose, onSave }) {
         const { name, value } = e.target;
         setGoalData(prev => ({ ...prev, [name]: value }));
     };
+
+    const toggleDay = (dayValue) => {
+        setGoalData(prev => {
+            const days = prev.availableDays.includes(dayValue)
+                ? prev.availableDays.filter(d => d !== dayValue)
+                : [...prev.availableDays, dayValue].sort((a, b) => a - b);
+            return { ...prev, availableDays: days };
+        });
+    };
+
+    const weekDays = [
+        { value: 0, label: 'Dom' },
+        { value: 1, label: 'Seg' },
+        { value: 2, label: 'Ter' },
+        { value: 3, label: 'Qua' },
+        { value: 4, label: 'Qui' },
+        { value: 5, label: 'Sex' },
+        { value: 6, label: 'Sáb' }
+    ];
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -126,6 +146,28 @@ function GoalModal({ isOpen, onClose, onSave }) {
                             />
                             <span className="availability-value">{goalData.weeklyAvailability} dias</span>
                         </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label>Dias Disponíveis para Treinar</label>
+                        <p className="form-hint">Selecione os dias em que você pode treinar</p>
+                        <div className="days-selector">
+                            {weekDays.map(day => (
+                                <button
+                                    key={day.value}
+                                    type="button"
+                                    className={`day-btn ${goalData.availableDays.includes(day.value) ? 'active' : ''}`}
+                                    onClick={() => toggleDay(day.value)}
+                                >
+                                    {day.label}
+                                </button>
+                            ))}
+                        </div>
+                        {goalData.availableDays.length > 0 && goalData.availableDays.length < goalData.weeklyAvailability && (
+                            <p className="form-warning">
+                                ⚠️ Selecione pelo menos {goalData.weeklyAvailability} dias
+                            </p>
+                        )}
                     </div>
 
                     <div className="form-group">
