@@ -56,9 +56,18 @@ function Dashboard() {
     const loadActivities = async () => {
         try {
             const data = await api.getActivities();
-            setActivities(data);
+            // Ensure data is always an array
+            if (Array.isArray(data)) {
+                setActivities(data);
+            } else if (data && data.activities) {
+                // Handle case where API returns { activities: [...] }
+                setActivities(data.activities);
+            } else {
+                setActivities([]);
+            }
         } catch (err) {
             console.error('Error loading activities:', err);
+            setActivities([]);
         }
     };
 
