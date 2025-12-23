@@ -44,7 +44,12 @@ function GoalModal({ isOpen, onClose, onSave }) {
         e.preventDefault();
         setSaving(true);
         try {
-            await onSave(goalData);
+            // Transformar weeklyAvailability para string (backend espera string)
+            const payload = {
+                ...goalData,
+                weeklyAvailability: String(goalData.weeklyAvailability)
+            };
+            await onSave(payload);
             onClose();
         } catch (error) {
             console.error('Error saving goal:', error);
