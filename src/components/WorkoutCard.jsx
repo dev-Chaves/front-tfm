@@ -34,7 +34,8 @@ function WorkoutCard({ workout }) {
     const foco_semana = s.foco_semana || workout.foco_semana;
 
     const formatDate = (dateStr) => {
-        const date = new Date(dateStr);
+        // Adiciona horário para evitar problemas de timezone (UTC vs local)
+        const date = new Date(dateStr + 'T12:00:00');
         const options = { weekday: 'short', day: 'numeric', month: 'short' };
         return date.toLocaleDateString('pt-BR', options);
     };
@@ -43,7 +44,7 @@ function WorkoutCard({ workout }) {
     const getEffectiveStatus = () => {
         if (status === 'Concluido') return 'Concluido';
 
-        const workoutDate = new Date(data);
+        const workoutDate = new Date(data + 'T12:00:00');
         const today = new Date();
         workoutDate.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
