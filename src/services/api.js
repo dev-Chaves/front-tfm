@@ -13,7 +13,7 @@ export const getAuthUrl = () => `${API_URL}/auth/login`;
 
 export const fetchWithAuth = async (endpoint, options = {}) => {
   const token = getToken();
-  
+
   if (!token) {
     throw new Error('No authentication token');
   }
@@ -44,7 +44,7 @@ export const api = {
   },
 
   getActivities: async () => {
-    const response = await fetchWithAuth('/activies');
+    const response = await fetchWithAuth('/activities');
     if (!response.ok) throw new Error('Failed to fetch activities');
     return response.json();
   },

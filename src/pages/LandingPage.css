@@ -382,3 +382,45 @@
     font-size: 0.8rem;
   }
 }
+
+/* Strava Footer */
+.strava-footer {
+  position: relative;
+  z-index: 10;
+  padding: 2rem 3rem;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.strava-powered-by {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.powered-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.strava-logo {
+  width: 24px;
+  height: 24px;
+}
+
+.strava-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #FC4C02;
+  letter-spacing: 0.05em;
+}
+
+.data-disclaimer {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
