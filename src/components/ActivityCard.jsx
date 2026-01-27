@@ -2,51 +2,24 @@ import './ActivityCard.css';
 
 function ActivityCard({ activity }) {
     const {
-        id,
+        stravaId,
         name,
         type,
-        distance,
-        moving_time,
-        elapsed_time,
-        start_date,
-        average_speed,
-        max_speed,
+        startDate,
+        distanceKm,
+        movingTime,
+        pace,
         average_heartrate,
-        max_heartrate,
         total_elevation_gain,
         kudos_count,
         achievement_count
     } = activity;
 
     const formatDate = (dateStr) => {
+        if (!dateStr) return '';
         const date = new Date(dateStr);
         const options = { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
         return date.toLocaleDateString('pt-BR', options);
-    };
-
-    const formatDistance = (meters) => {
-        if (!meters) return '0 km';
-        return (meters / 1000).toFixed(2) + ' km';
-    };
-
-    const formatTime = (seconds) => {
-        if (!seconds) return '0:00';
-        const hrs = Math.floor(seconds / 3600);
-        const mins = Math.floor((seconds % 3600) / 60);
-        const secs = seconds % 60;
-        if (hrs > 0) {
-            return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
-
-    const formatPace = (speed) => {
-        if (!speed || speed === 0) return '-';
-        // speed is in m/s, convert to min/km
-        const paceSeconds = 1000 / speed;
-        const mins = Math.floor(paceSeconds / 60);
-        const secs = Math.round(paceSeconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}/km`;
     };
 
     const getActivityIcon = (type) => {
@@ -77,7 +50,7 @@ function ActivityCard({ activity }) {
                 <div className="activity-icon">{getActivityIcon(type)}</div>
                 <div className="activity-info">
                     <h3 className="activity-name">{name || 'Atividade'}</h3>
-                    <span className="activity-date">{formatDate(start_date)}</span>
+                    <span className="activity-date">{formatDate(startDate)}</span>
                 </div>
                 {kudos_count > 0 && (
                     <div className="activity-kudos">
@@ -89,15 +62,15 @@ function ActivityCard({ activity }) {
 
             <div className="activity-metrics">
                 <div className="metric-item">
-                    <span className="metric-value">{formatDistance(distance)}</span>
+                    <span className="metric-value">{distanceKm ? `${distanceKm} km` : '0 km'}</span>
                     <span className="metric-label">Distância</span>
                 </div>
                 <div className="metric-item">
-                    <span className="metric-value">{formatTime(moving_time)}</span>
+                    <span className="metric-value">{movingTime || '0:00'}</span>
                     <span className="metric-label">Tempo</span>
                 </div>
                 <div className="metric-item">
-                    <span className="metric-value">{formatPace(average_speed)}</span>
+                    <span className="metric-value">{pace ? `${pace}/km` : '-'}</span>
                     <span className="metric-label">Pace Médio</span>
                 </div>
             </div>
@@ -124,7 +97,7 @@ function ActivityCard({ activity }) {
             </div>
 
             <a
-                href={`https://www.strava.com/activities/${id}`}
+                href={`https://www.strava.com/activities/${stravaId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="view-on-strava"

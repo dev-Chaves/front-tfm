@@ -103,7 +103,7 @@ function Dashboard() {
         try {
             setSyncing(true);
             setSyncMessage(null);
-            const result = await api.getActivities();
+            const result = await api.syncActivities();
             // Handle the sync response
             if (result && result.new_activities_linked !== undefined) {
                 setSyncMessage(`✅ ${result.message || 'Sincronização realizada!'} (${result.new_activities_linked} novas atividades)`);

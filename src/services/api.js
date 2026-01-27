@@ -49,6 +49,14 @@ export const api = {
     return response.json();
   },
 
+  syncActivities: async () => {
+    const response = await fetchWithAuth('/activities/sync', {
+      method: 'POST',
+    });
+    if (!response.ok) throw new Error('Failed to sync activities');
+    return response.json();
+  },
+
   generateWorkoutPlan: async () => {
     const response = await fetchWithAuth('/ai/workout');
     if (!response.ok) throw new Error('Failed to generate workout plan');
