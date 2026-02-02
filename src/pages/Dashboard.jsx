@@ -4,6 +4,7 @@ import { setToken, getToken, removeToken, api } from '../services/api';
 import WorkoutCard from '../components/WorkoutCard';
 import ActivityCard from '../components/ActivityCard';
 import GoalModal from '../components/GoalModal';
+import SuccessPopup from '../components/SuccessPopup';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -13,6 +14,8 @@ function Dashboard() {
     const [error, setError] = useState(null);
     const [isFirstLogin, setIsFirstLogin] = useState(false);
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+    const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
     const [activities, setActivities] = useState([]);
     const [activeTab, setActiveTab] = useState('workouts');
     const [syncing, setSyncing] = useState(false);
@@ -103,7 +106,14 @@ function Dashboard() {
     };
 
     const handleSaveGoal = async (goalData) => {
-        await api.updateGoal(goalData);
+        try {
+            await api.updateGoal(goalData);
+            setSuccessMessage('Sua meta foi definida com sucesso! Agora vamos criar um plano de treinos personalizado para você.');
+            setIsSuccessPopupOpen(true);
+        } catch (error) {
+            console.error('Error saving goal:', error);
+            setError('Erro ao salvar meta. Tente novamente.');
+        }
     };
 
     const handleSync = async () => {
@@ -361,6 +371,12 @@ function Dashboard() {
                 isOpen={isGoalModalOpen}
                 onClose={() => setIsGoalModalOpen(false)}
                 onSave={handleSaveGoal}
+            />
+
+            <SuccessPopup
+                isOpen={isSuccessPopupOpen}
+                onClose={() => setIsSuccessPopupOpen(false)}
+                message={successMessage}
             />
         </div>
     );
