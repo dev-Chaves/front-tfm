@@ -91,8 +91,8 @@ function Dashboard() {
     const handleGeneratePlan = async () => {
         try {
             setLoading(true);
-            const plan = await api.generateWorkoutPlan();
-            await api.saveWorkoutPlan(plan);
+            // O backend já salva os treinos automaticamente ao gerar o plano
+            await api.generateWorkoutPlan();
             await loadWorkouts();
         } catch (err) {
             console.error('Error generating plan:', err);
