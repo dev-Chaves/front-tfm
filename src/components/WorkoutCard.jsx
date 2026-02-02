@@ -195,6 +195,21 @@ function WorkoutCard({ workout }) {
                                         Pace alvo: <strong>{fases.principal.pace_alvo}</strong>
                                     </div>
                                 )}
+
+                                {/* Segments List (Pace a Pace) */}
+                                {fases.principal.segmentos && fases.principal.segmentos.length > 0 && (
+                                    <div className="segments-list">
+                                        <h4>Detalhamento km a km:</h4>
+                                        {fases.principal.segmentos.map((seg, index) => (
+                                            <div key={index} className="segment-row">
+                                                <span>{seg.distancia_km}km</span>
+                                                <strong>{seg.pace_alvo}</strong>
+                                                <span className="badge-zone">{seg.zona_fc}</span>
+                                                <p>{seg.descricao}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}

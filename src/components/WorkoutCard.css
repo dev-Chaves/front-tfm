@@ -269,6 +269,52 @@
     color: #F59E0B;
 }
 
+/* Segments List */
+.segments-list {
+    margin-top: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 0.75rem;
+}
+
+.segments-list h4 {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 0.5rem 0;
+}
+
+.segment-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.segment-row:last-child {
+    border-bottom: none;
+}
+
+.segment-row strong {
+    color: #F59E0B;
+}
+
+.badge-zone {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.4rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.segment-row p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    margin-left: auto;
+}
+
 /* How To Execute */
 .howto-section {
     margin-bottom: 1rem;
