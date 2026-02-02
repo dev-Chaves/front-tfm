@@ -43,6 +43,13 @@ function Dashboard() {
         loadActivities();
     }, [navigate]);
 
+    // Abrir modal de metas automaticamente no primeiro login
+    useEffect(() => {
+        if (isFirstLogin) {
+            setIsGoalModalOpen(true);
+        }
+    }, [isFirstLogin]);
+
     const loadWorkouts = async () => {
         try {
             setLoading(true);
