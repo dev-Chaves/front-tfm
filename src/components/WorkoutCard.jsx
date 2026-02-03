@@ -179,11 +179,9 @@ function WorkoutCard({ workout }) {
                                                 <span className="serie-main">
                                                     {serie.repeticoes}x {serie.distancia_m}m @ {serie.pace_alvo}
                                                 </span>
-                                                {serie.descanso_duracao && (
-                                                    <span className="serie-rest">
-                                                        Descanso: {serie.descanso_duracao} ({serie.descanso_tipo || 'parado'})
-                                                    </span>
-                                                )}
+                                                <span className="serie-rest">
+                                                    🔄 Descanso: {serie.descanso_duracao} ({serie.descanso_tipo ? serie.descanso_tipo.charAt(0).toUpperCase() + serie.descanso_tipo.slice(1) : 'Parado'})
+                                                </span>
                                             </div>
                                         ))}
                                     </div>
