@@ -149,7 +149,7 @@ function Dashboard() {
             let effectiveStatus = w.status;
 
             if (w.status !== 'Concluido') {
-                const workoutDate = new Date(w.data);
+                const workoutDate = new Date(w.data + 'T12:00:00');
                 workoutDate.setHours(0, 0, 0, 0);
 
                 if (workoutDate >= today) {
@@ -302,7 +302,7 @@ function Dashboard() {
                                     {workouts
                                         .filter(workout => {
                                             if (dateFilter === 'all') return true;
-                                            const workoutDate = new Date(workout.data);
+                                            const workoutDate = new Date(workout.data + 'T12:00:00');
                                             const today = new Date();
                                             today.setHours(0, 0, 0, 0);
 
@@ -325,8 +325,8 @@ function Dashboard() {
                                             return true;
                                         })
                                         .sort((a, b) => {
-                                            const dateA = new Date(a.data);
-                                            const dateB = new Date(b.data);
+                                            const dateA = new Date(a.data + 'T12:00:00');
+                                            const dateB = new Date(b.data + 'T12:00:00');
                                             return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
                                         })
                                         .map((workout) => (
