@@ -59,7 +59,40 @@ function Dashboard() {
             setError(null);
             const data = await api.getWorkouts();
             console.log('📋 Workouts API Response:', data);
-            setWorkouts(data);
+
+            // Transform new API structure to match existing WorkoutCard format
+            const transformedWorkouts = (data || []).map(item => {
+                const planned = item.workout?.planned || {};
+                const performed = item.activity?.performed || null;
+                const feedbackData = item.feedback?.data || null;
+
+                return {
+                    id: item.id,
+                    data: item.date,
+                    status: item.status,
+                    tipo: planned.tipo || 'Treino',
+                    titulo: planned.titulo,
+                    distancia_planejada: planned.distancia_km,
+                    tempo_estimado_min: planned.tempo_min,
+                    // Map estrutura.fases to fases for WorkoutCard
+                    fases: planned.estrutura?.fases || null,
+                    structure: planned.estrutura || null,
+                    // Activity data
+                    distancia_realizada: performed?.distance,
+                    pace_realizado: performed?.pace,
+                    activityName: performed?.name,
+                    // Feedback/Coach data
+                    coach: feedbackData ? {
+                        pontuacao: feedbackData.score,
+                        titulo_feedback: feedbackData.titulo_feedback,
+                        comentario: feedbackData.comentario_coach,
+                        aspectos_positivos: feedbackData.pontos_positivos,
+                        areas_melhoria: feedbackData.pontos_atencao,
+                    } : null,
+                };
+            });
+
+            setWorkouts(transformedWorkouts);
         } catch (err) {
             console.error('Error loading workouts:', err);
             setError('Erro ao carregar treinos. Tente novamente.');
