@@ -38,7 +38,7 @@ export const fetchWithAuth = async (endpoint, options = {}) => {
 
 export const api = {
   getWorkouts: async () => {
-    const response = await fetchWithAuth('/workouts/dashboard');
+    const response = await fetchWithAuth('/workouts');
     if (!response.ok) throw new Error('Failed to fetch workouts');
     return response.json();
   },
@@ -51,16 +51,14 @@ export const api = {
 
   syncActivities: async () => {
     const response = await fetchWithAuth('/activities/sync', {
-      method: 'GET',
+      method: 'POST',
     });
     if (!response.ok) throw new Error('Failed to sync activities');
     return response.json();
   },
 
   generateWorkoutPlan: async () => {
-    const response = await fetchWithAuth('/ai/generate', {
-      method: 'POST',
-    });
+    const response = await fetchWithAuth('/ai/workout');
     if (!response.ok) throw new Error('Failed to generate workout plan');
     return response.json();
   },
@@ -76,7 +74,7 @@ export const api = {
 
   updateGoal: async (goal) => {
     const response = await fetchWithAuth('/users/goal', {
-      method: 'POST',
+      method: 'PATCH',
       body: JSON.stringify(goal),
     });
     if (!response.ok) throw new Error('Failed to update goal');
