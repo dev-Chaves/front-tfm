@@ -175,7 +175,7 @@ function Dashboard() {
 
             <nav className="dashboard-nav">
                 <div className="logo">
-                    <span className="logo-icon">🏃</span>
+                    <img src="/favicon/favicon.svg" alt="TFM Logo" className="logo-icon" />
                     <span className="logo-text">TFM</span>
                 </div>
                 <div className="nav-actions">
