@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import './ActivityCard.css';
 
-function ActivityCard({ activity }) {
+const ActivityCard = memo(function ActivityCard({ activity }) {
     const {
         stravaId,
         name,
@@ -109,6 +110,6 @@ function ActivityCard({ activity }) {
             </a>
         </div>
     );
-}
+});
 
 export default ActivityCard;

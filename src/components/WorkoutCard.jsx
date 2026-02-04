@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import './WorkoutCard.css';
 
-function WorkoutCard({ workout }) {
+const WorkoutCard = memo(function WorkoutCard({ workout }) {
     const [expanded, setExpanded] = useState(false);
     const [showHowTo, setShowHowTo] = useState(false);
 
@@ -350,6 +350,6 @@ function WorkoutCard({ workout }) {
             )}
         </div>
     );
-}
+});
 
 export default WorkoutCard;
