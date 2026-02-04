@@ -16,22 +16,22 @@
 .dashboard .gradient-orb {
     position: absolute;
     border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.3;
+    /* filter: blur(120px); Removed for performance on Safari */
+    opacity: 0.4;
 }
 
 .dashboard .orb-1 {
-    width: 500px;
-    height: 500px;
-    background: linear-gradient(135deg, #fc4c02 0%, #ff6b35 100%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(252, 76, 2, 0.6) 0%, rgba(255, 107, 53, 0.3) 40%, transparent 70%);
     top: -200px;
     right: -100px;
 }
 
 .dashboard .orb-2 {
-    width: 400px;
-    height: 400px;
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.6) 0%, rgba(139, 92, 246, 0.3) 40%, transparent 70%);
     bottom: -100px;
     left: -100px;
 }
