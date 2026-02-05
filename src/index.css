@@ -63,6 +63,10 @@ body {
   color: var(--color-text);
   line-height: 1.5;
   min-height: 100vh;
+  min-height: -webkit-fill-available;
+  /* Safari iOS touch scrolling fix */
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
 }
 
 a {
