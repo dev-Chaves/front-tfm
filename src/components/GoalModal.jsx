@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Target, AlertTriangle, Sparkles, X } from 'lucide-react';
 import './GoalModal.css';
 
 function GoalModal({ isOpen, onClose, onSave }) {
@@ -62,8 +63,8 @@ function GoalModal({ isOpen, onClose, onSave }) {
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-container" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h2>🎯 Defina sua Meta</h2>
-                    <button className="modal-close" onClick={onClose}>×</button>
+                    <h2><Target size={24} style={{ marginRight: '8px', verticalAlign: 'middle', display: 'inline' }} /> Defina sua Meta</h2>
+                    <button className="modal-close" onClick={onClose}><X size={24} /></button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="modal-form">
@@ -170,7 +171,7 @@ function GoalModal({ isOpen, onClose, onSave }) {
                         </div>
                         {goalData.availableDays.length > 0 && goalData.availableDays.length < goalData.weeklyAvailability && (
                             <p className="form-warning">
-                                ⚠️ Selecione pelo menos {goalData.weeklyAvailability} dias
+                                <AlertTriangle size={16} style={{ display: 'inline', marginRight: '4px' }} /> Selecione pelo menos {goalData.weeklyAvailability} dias
                             </p>
                         )}
                     </div>
@@ -192,7 +193,7 @@ function GoalModal({ isOpen, onClose, onSave }) {
                             Cancelar
                         </button>
                         <button type="submit" className="btn-save" disabled={saving}>
-                            {saving ? 'Salvando...' : '✨ Salvar Meta'}
+                            {saving ? 'Salvando...' : <><Sparkles size={16} style={{ marginRight: '8px' }} /> Salvar Meta</>}
                         </button>
                     </div>
                 </form>

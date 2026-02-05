@@ -5,6 +5,17 @@ import WorkoutCard from '../components/WorkoutCard';
 import ActivityCard from '../components/ActivityCard';
 import GoalModal from '../components/GoalModal';
 import SuccessPopup from '../components/SuccessPopup';
+import {
+    ClipboardList,
+    Activity,
+    RefreshCw,
+    Target,
+    Sparkles,
+    LogOut,
+    AlertTriangle,
+    CheckCircle,
+    XCircle
+} from 'lucide-react';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -125,15 +136,15 @@ function Dashboard() {
             const result = await api.syncActivities();
             // Handle the sync response
             if (result && result.new_activities_linked !== undefined) {
-                setSyncMessage(`✅ ${result.message || 'Sincronização realizada!'}`);
+                setSyncMessage(`${result.message || 'Sincronização realizada!'}`);
             } else {
-                setSyncMessage('✅ Sincronização realizada!');
+                setSyncMessage('Sincronização realizada!');
             }
             // Reload activities after sync
             await loadActivities();
         } catch (err) {
             console.error('Error syncing:', err);
-            setSyncMessage('❌ Erro ao sincronizar. Tente novamente.');
+            setSyncMessage('Erro ao sincronizar. Tente novamente.');
         } finally {
             setSyncing(false);
             // Clear message after 5 seconds
@@ -220,22 +231,24 @@ function Dashboard() {
                 </div>
                 <div className="nav-actions">
                     <button className="btn-sync" onClick={handleSync} disabled={syncing}>
-                        {syncing ? '🔄 Sincronizando...' : '🔄 Sincronizar Strava'}
+                        <RefreshCw size={16} className={syncing ? 'spin-animation' : ''} style={{ marginRight: '8px' }} />
+                        {syncing ? 'Sincronizando...' : 'Sincronizar Strava'}
                     </button>
                     <button className="btn-secondary" onClick={openGoalModal}>
-                        🎯 Minha Meta
+                        <Target size={16} style={{ marginRight: '8px' }} /> Minha Meta
                     </button>
                     <button className="btn-secondary" onClick={handleGeneratePlan}>
-                        ✨ Gerar Novo Plano
+                        <Sparkles size={16} style={{ marginRight: '8px' }} /> Gerar Novo Plano
                     </button>
                     <button className="btn-logout" onClick={handleLogout}>
-                        Sair
+                        <LogOut size={16} style={{ marginRight: '8px' }} /> Sair
                     </button>
                 </div>
             </nav>
 
             {syncMessage && (
-                <div className={`sync-message ${syncMessage.includes('❌') ? 'sync-error' : 'sync-success'}`}>
+                <div className={`sync-message ${syncMessage.includes('Erro') ? 'sync-error' : 'sync-success'}`}>
+                    {syncMessage.includes('Erro') ? <XCircle size={20} style={{ marginRight: '8px' }} /> : <CheckCircle size={20} style={{ marginRight: '8px' }} />}
                     {syncMessage}
                 </div>
             )}
@@ -243,7 +256,7 @@ function Dashboard() {
             <main className="dashboard-content">
                 {isFirstLogin && (
                     <div className="welcome-banner">
-                        <h2>🎉 Bem-vindo ao TFM!</h2>
+                        <h2><Sparkles size={24} style={{ display: 'inline', marginRight: '8px' }} /> Bem-vindo ao TFM!</h2>
                         <p>Suas atividades do Strava estão sendo sincronizadas. Gere seu primeiro plano de treinos!</p>
                     </div>
                 )}
@@ -272,7 +285,7 @@ function Dashboard() {
 
                 {error && (
                     <div className="error-message">
-                        <span>⚠️ {error}</span>
+                        <span><AlertTriangle size={20} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'text-bottom' }} /> {error}</span>
                         <button onClick={loadWorkouts}>Tentar novamente</button>
                     </div>
                 )}
@@ -282,13 +295,13 @@ function Dashboard() {
                         className={`tab-btn ${activeTab === 'workouts' ? 'active' : ''}`}
                         onClick={() => setActiveTab('workouts')}
                     >
-                        📋 Treinos Planejados
+                        <ClipboardList size={20} style={{ marginRight: '8px' }} /> Treinos Planejados
                     </button>
                     <button
                         className={`tab-btn ${activeTab === 'activities' ? 'active' : ''}`}
                         onClick={() => setActiveTab('activities')}
                     >
-                        🏃 Atividades Realizadas ({activities.length})
+                        <Activity size={20} style={{ marginRight: '8px' }} /> Atividades Realizadas ({activities.length})
                     </button>
                 </div>
 
@@ -301,11 +314,11 @@ function Dashboard() {
                             </div>
                         ) : workouts.length === 0 ? (
                             <div className="empty-state">
-                                <div className="empty-icon">📋</div>
+                                <div className="empty-icon"><ClipboardList size={48} /></div>
                                 <h3>Nenhum treino encontrado</h3>
                                 <p>Clique em "Gerar Novo Plano" para criar seu primeiro plano de treinos com IA!</p>
                                 <button className="btn-primary" onClick={handleGeneratePlan}>
-                                    ✨ Gerar Plano de Treinos
+                                    <Sparkles size={16} style={{ marginRight: '8px' }} /> Gerar Plano de Treinos
                                 </button>
                             </div>
                         ) : (
@@ -352,7 +365,7 @@ function Dashboard() {
                     <>
                         {activities.length === 0 ? (
                             <div className="empty-state">
-                                <div className="empty-icon">🏃</div>
+                                <div className="empty-icon"><Activity size={48} /></div>
                                 <h3>Nenhuma atividade encontrada</h3>
                                 <p>Suas atividades do Strava aparecerão aqui após sincronização.</p>
                             </div>

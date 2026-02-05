@@ -1,4 +1,24 @@
 import { useState, memo } from 'react';
+import {
+    CheckCircle,
+    Circle,
+    XCircle,
+    MapPin,
+    Clock,
+    Heart,
+    Thermometer,
+    Target,
+    RotateCw,
+    Snowflake,
+    ClipboardList,
+    ChevronUp,
+    ChevronDown,
+    Lightbulb,
+    Brain,
+    Bot,
+    Check,
+    AlertCircle
+} from 'lucide-react';
 import './WorkoutCard.css';
 
 const WorkoutCard = memo(function WorkoutCard({ workout }) {
@@ -60,13 +80,13 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
     const getStatusConfig = (status) => {
         switch (status) {
             case 'Concluido':
-                return { label: 'Concluído', class: 'status-completed', icon: '✓' };
+                return { label: 'Concluído', class: 'status-completed', icon: <CheckCircle size={16} /> };
             case 'Pendente':
-                return { label: 'Pendente', class: 'status-pending', icon: '◯' };
+                return { label: 'Pendente', class: 'status-pending', icon: <Circle size={16} /> };
             case 'Perdido':
-                return { label: 'Perdido', class: 'status-missed', icon: '✕' };
+                return { label: 'Perdido', class: 'status-missed', icon: <XCircle size={16} /> };
             default:
-                return { label: status, class: '', icon: '' };
+                return { label: status, class: '', icon: null };
         }
     };
 
@@ -116,19 +136,19 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
             <div className="quick-stats">
                 {displayDistancia && (
                     <div className="stat-pill">
-                        <span className="pill-icon">🏃</span>
+                        <span className="pill-icon"><MapPin size={16} /></span>
                         <span>{displayDistancia} km</span>
                     </div>
                 )}
                 {displayTempo && (
                     <div className="stat-pill">
-                        <span className="pill-icon">⏱️</span>
+                        <span className="pill-icon"><Clock size={16} /></span>
                         <span>{displayTempo} min</span>
                     </div>
                 )}
                 {zonaFC && (
                     <div className="stat-pill zona-pill">
-                        <span className="pill-icon">💓</span>
+                        <span className="pill-icon"><Heart size={16} /></span>
                         <span>Zona {zonaFC}</span>
                     </div>
                 )}
@@ -143,7 +163,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
                             <div className="phase-marker"></div>
                             <div className="phase-content">
                                 <div className="phase-header">
-                                    <span className="phase-icon">🌡️</span>
+                                    <span className="phase-icon"><Thermometer size={16} /></span>
                                     <span className="phase-title">Aquecimento</span>
                                     {fases.aquecimento.duracao_min && (
                                         <span className="phase-duration">{fases.aquecimento.duracao_min} min</span>
@@ -163,7 +183,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
                             <div className="phase-marker"></div>
                             <div className="phase-content">
                                 <div className="phase-header">
-                                    <span className="phase-icon">🎯</span>
+                                    <span className="phase-icon"><Target size={16} /></span>
                                     <span className="phase-title">Principal</span>
                                 </div>
 
@@ -180,7 +200,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
                                                     {serie.repeticoes}x {serie.distancia_m}m @ {serie.pace_alvo}
                                                 </span>
                                                 <span className="serie-rest">
-                                                    🔄 Descanso: {serie.descanso_duracao} ({serie.descanso_tipo ? serie.descanso_tipo.charAt(0).toUpperCase() + serie.descanso_tipo.slice(1) : 'Parado'})
+                                                    <RotateCw size={14} style={{ display: 'inline', marginRight: '4px' }} /> Descanso: {serie.descanso_duracao} ({serie.descanso_tipo ? serie.descanso_tipo.charAt(0).toUpperCase() + serie.descanso_tipo.slice(1) : 'Parado'})
                                                 </span>
                                             </div>
                                         ))}
@@ -218,7 +238,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
                             <div className="phase-marker"></div>
                             <div className="phase-content">
                                 <div className="phase-header">
-                                    <span className="phase-icon">❄️</span>
+                                    <span className="phase-icon"><Snowflake size={16} /></span>
                                     <span className="phase-title">Desaquecimento</span>
                                     {fases.desaquecimento.duracao_min && (
                                         <span className="phase-duration">{fases.desaquecimento.duracao_min} min</span>
@@ -241,9 +261,9 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
                         className="howto-toggle"
                         onClick={() => setShowHowTo(!showHowTo)}
                     >
-                        <span className="howto-icon">📋</span>
+                        <span className="howto-icon"><ClipboardList size={16} /></span>
                         <span className="howto-title">Como Executar</span>
-                        <span className="howto-arrow">{showHowTo ? '▲' : '▼'}</span>
+                        <span className="howto-arrow">{showHowTo ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</span>
                     </button>
                     {showHowTo && (
                         <div className="howto-content">
@@ -258,7 +278,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
             {/* Coach Tips - Chips */}
             {dicas_execucao?.length > 0 && (
                 <div className="tips-section">
-                    <span className="tips-label">💡 Dicas:</span>
+                    <span className="tips-label"><Lightbulb size={16} style={{ display: 'inline', marginRight: '6px' }} /> Dicas:</span>
                     <div className="tips-chips">
                         {dicas_execucao.map((dica, idx) => (
                             <span key={idx} className="tip-chip">{dica}</span>
@@ -270,7 +290,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
             {/* Expected Feeling */}
             {sensacao_esperada && (
                 <div className="feeling-callout">
-                    <span className="feeling-icon">🧠</span>
+                    <span className="feeling-icon"><Brain size={16} /></span>
                     <p className="feeling-text">{sensacao_esperada}</p>
                 </div>
             )}
@@ -278,7 +298,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
             {/* Coach Message Bubble */}
             {mensagem_coach && (
                 <div className="coach-bubble">
-                    <div className="bubble-avatar">🤖</div>
+                    <div className="bubble-avatar"><Bot size={24} /></div>
                     <div className="bubble-content">
                         <span className="bubble-label">Coach:</span>
                         <p className="bubble-message">{mensagem_coach}</p>
@@ -290,7 +310,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
             {effectiveStatus === 'Concluido' && distancia_realizada && (
                 <div className="results-section">
                     <div className="results-header">
-                        <span className="results-icon">✅</span>
+                        <span className="results-icon"><CheckCircle size={16} /></span>
                         <span className="results-title">Resultado</span>
                     </div>
                     <div className="results-metrics">
@@ -327,7 +347,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
                     {coach.aspectos_positivos?.length > 0 && (
                         <div className="feedback-tags positive">
                             {coach.aspectos_positivos.map((item, i) => (
-                                <span key={i} className="feedback-tag">✓ {item}</span>
+                                <span key={i} className="feedback-tag"><Check size={14} style={{ display: 'inline', marginRight: '4px' }} /> {item}</span>
                             ))}
                         </div>
                     )}
@@ -335,14 +355,14 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
                     {coach.areas_melhoria?.length > 0 && (
                         <div className="feedback-tags improvement">
                             {coach.areas_melhoria.map((item, i) => (
-                                <span key={i} className="feedback-tag">○ {item}</span>
+                                <span key={i} className="feedback-tag"><AlertCircle size={14} style={{ display: 'inline', marginRight: '4px' }} /> {item}</span>
                             ))}
                         </div>
                     )}
 
                     {coach.dica_proxima && (
                         <div className="feedback-next">
-                            <span className="next-icon">💡</span>
+                            <span className="next-icon"><Lightbulb size={16} /></span>
                             <span>{coach.dica_proxima}</span>
                         </div>
                     )}

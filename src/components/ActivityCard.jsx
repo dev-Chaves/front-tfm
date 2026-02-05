@@ -1,4 +1,16 @@
 import { memo } from 'react';
+import {
+    ThumbsUp,
+    Heart,
+    Mountain,
+    Trophy,
+    Activity,
+    Bike,
+    Waves,
+    Footprints,
+    MountainSnow,
+    Dumbbell
+} from 'lucide-react';
 import './ActivityCard.css';
 
 const ActivityCard = memo(function ActivityCard({ activity }) {
@@ -27,21 +39,21 @@ const ActivityCard = memo(function ActivityCard({ activity }) {
         switch (type?.toLowerCase()) {
             case 'run':
             case 'running':
-                return '🏃';
+                return <Activity size={24} />;
             case 'ride':
             case 'cycling':
-                return '🚴';
+                return <Bike size={24} />;
             case 'swim':
             case 'swimming':
-                return '🏊';
+                return <Waves size={24} />;
             case 'walk':
             case 'walking':
-                return '🚶';
+                return <Footprints size={24} />;
             case 'hike':
             case 'hiking':
-                return '🥾';
+                return <MountainSnow size={24} />;
             default:
-                return '💪';
+                return <Dumbbell size={24} />;
         }
     };
 
@@ -55,7 +67,7 @@ const ActivityCard = memo(function ActivityCard({ activity }) {
                 </div>
                 {kudos_count > 0 && (
                     <div className="activity-kudos">
-                        <span className="kudos-icon">👍</span>
+                        <span className="kudos-icon"><ThumbsUp size={14} /></span>
                         <span className="kudos-count">{kudos_count}</span>
                     </div>
                 )}
@@ -79,19 +91,19 @@ const ActivityCard = memo(function ActivityCard({ activity }) {
             <div className="activity-details">
                 {average_heartrate && (
                     <div className="detail-item">
-                        <span className="detail-icon">❤️</span>
+                        <span className="detail-icon"><Heart size={16} /></span>
                         <span className="detail-text">{Math.round(average_heartrate)} bpm</span>
                     </div>
                 )}
                 {total_elevation_gain > 0 && (
                     <div className="detail-item">
-                        <span className="detail-icon">⛰️</span>
+                        <span className="detail-icon"><Mountain size={16} /></span>
                         <span className="detail-text">{Math.round(total_elevation_gain)}m</span>
                     </div>
                 )}
                 {achievement_count > 0 && (
                     <div className="detail-item">
-                        <span className="detail-icon">🏆</span>
+                        <span className="detail-icon"><Trophy size={16} /></span>
                         <span className="detail-text">{achievement_count}</span>
                     </div>
                 )}

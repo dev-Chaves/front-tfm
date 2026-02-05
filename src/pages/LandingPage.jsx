@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { getAuthUrl } from '../services/api';
+import { Target, Bot, BarChart2, Lock, AlertTriangle } from 'lucide-react';
 import './LandingPage.css';
 
 function LandingPage() {
@@ -54,7 +55,7 @@ function LandingPage() {
 
                     {error && (
                         <div className="error-banner">
-                            <span className="error-icon">⚠️</span>
+                            <span className="error-icon"><AlertTriangle size={20} /></span>
                             {getErrorMessage(error)}
                         </div>
                     )}
@@ -67,24 +68,31 @@ function LandingPage() {
                     </button>
 
                     <p className="security-note">
-                        🔒 Seus dados estão seguros. Usamos apenas leitura das suas atividades.
+                        <Lock size={16} style={{ marginRight: '8px', display: 'inline' }} />
+                        Seus dados estão seguros. Usamos apenas leitura das suas atividades.
                     </p>
                 </div>
 
                 <div className="hero-visual">
                     <div className="feature-cards">
                         <div className="feature-card card-1">
-                            <div className="feature-icon">🎯</div>
+                            <div className="feature-icon">
+                                <Target size={32} />
+                            </div>
                             <h3>Metas Personalizadas</h3>
                             <p>Defina seu objetivo de distância e prazo</p>
                         </div>
                         <div className="feature-card card-2">
-                            <div className="feature-icon">🤖</div>
+                            <div className="feature-icon">
+                                <Bot size={32} />
+                            </div>
                             <h3>IA Coach</h3>
                             <p>Planos de treino gerados por IA</p>
                         </div>
                         <div className="feature-card card-3">
-                            <div className="feature-icon">📊</div>
+                            <div className="feature-icon">
+                                <BarChart2 size={32} />
+                            </div>
                             <h3>Análise Completa</h3>
                             <p>Feedback sobre cada treino realizado</p>
                         </div>
