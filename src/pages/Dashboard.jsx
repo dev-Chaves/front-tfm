@@ -112,7 +112,7 @@ function Dashboard() {
             await loadWorkouts();
         } catch (err) {
             console.error('Error generating plan:', err);
-            setError('Erro ao gerar plano de treinos.');
+            setError(err.message || 'Erro ao gerar plano de treinos.');
         } finally {
             setLoading(false);
         }

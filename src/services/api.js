@@ -59,7 +59,10 @@ export const api = {
 
   generateWorkoutPlan: async () => {
     const response = await fetchWithAuth('/ai/workout');
-    if (!response.ok) throw new Error('Failed to generate workout plan');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Falha ao gerar plano de treino');
+    }
     return response.json();
   },
 
