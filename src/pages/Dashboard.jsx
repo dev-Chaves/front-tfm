@@ -14,7 +14,8 @@ import {
     LogOut,
     AlertTriangle,
     CheckCircle,
-    XCircle
+    XCircle,
+    Info
 } from 'lucide-react';
 import './Dashboard.css';
 
@@ -111,7 +112,7 @@ function Dashboard() {
             await api.generateWorkoutPlan();
             await loadWorkouts();
         } catch (err) {
-            console.error('Error generating plan:', err);
+            console.warn('Aviso ao gerar plano:', err.message);
             setError(err.message || 'Erro ao gerar plano de treinos.');
         } finally {
             setLoading(false);
@@ -284,9 +285,16 @@ function Dashboard() {
                 </header>
 
                 {error && (
-                    <div className="error-message">
-                        <span><AlertTriangle size={20} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'text-bottom' }} /> {error}</span>
-                        <button onClick={loadWorkouts}>Tentar novamente</button>
+                    <div className={error.includes('esperar') || error.includes('dias') ? 'info-message' : 'error-message'}>
+                        <span>
+                            {error.includes('esperar') || error.includes('dias') ? (
+                                <Info size={20} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'text-bottom' }} />
+                            ) : (
+                                <AlertTriangle size={20} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'text-bottom' }} />
+                            )}
+                            {error}
+                        </span>
+                        <button onClick={() => setError(null)}>{error.includes('esperar') || error.includes('dias') ? 'Entendi' : 'Tentar novamente'}</button>
                     </div>
                 )}
 
