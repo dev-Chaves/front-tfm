@@ -81,6 +81,7 @@ function Dashboard() {
         if (urlToken) {
             setToken(urlToken);
             setIsFirstLogin(firstLogin === 'true');
+            console.log('🔐 Login detected. firstLogin param:', firstLogin, 'State set to:', firstLogin === 'true');
             // Clean URL
             window.history.replaceState({}, document.title, '/dashboard');
         }
@@ -223,6 +224,7 @@ function Dashboard() {
         if (isFirstLogin) {
             // Pequeno delay para garantir que o modal fechou e o DOM atualizou
             setTimeout(() => {
+                console.log('🚀 Starting tutorial from closeSuccessPopup...');
                 startTutorial();
             }, 500);
         }

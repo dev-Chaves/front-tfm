@@ -51,11 +51,12 @@ export function useTutorial() {
             nextLabel: 'Próximo',
             prevLabel: 'Anterior',
             doneLabel: 'Entendi',
-            dontShowAgain: true,
-            dontShowAgainLabel: 'Não mostrar novamente',
+            // dontShowAgain: true, // Desativado para debug
+            // dontShowAgainLabel: 'Não mostrar novamente',
             buttonClass: 'introjs-button-custom',
         });
 
+        console.log('🏁 useTutorial: Starting Intro.js now...');
         intro.start();
     }, []);
 
