@@ -76,7 +76,7 @@ function Dashboard() {
         // Check for token in URL (redirect from OAuth)
         const params = new URLSearchParams(window.location.search);
         const urlToken = params.get('token');
-        const firstLogin = params.get('fistLogin'); // typo matches backend
+        const firstLogin = params.get('firstLogin'); // typo matches backend
 
         if (urlToken) {
             setToken(urlToken);
