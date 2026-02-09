@@ -1,0 +1,101 @@
+/* Customização do Intro.js para o tema escuro do TFM */
+
+.introjs-tooltip {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    border-radius: 12px !important;
+    border: 1px solid #333 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+    max-width: 350px !important;
+}
+
+.introjs-tooltip-title {
+    color: #ffffff !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 8px !important;
+}
+
+.introjs-tooltiptext {
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+    color: #cccccc !important;
+}
+
+.introjs-arrow.top {
+    border-bottom-color: #1e1e1e !important;
+}
+
+.introjs-arrow.bottom {
+    border-top-color: #1e1e1e !important;
+}
+
+.introjs-arrow.left {
+    border-right-color: #1e1e1e !important;
+}
+
+.introjs-arrow.right {
+    border-left-color: #1e1e1e !important;
+}
+
+/* Botões */
+.introjs-button {
+    background-color: #333 !important;
+    color: #fff !important;
+    border: 1px solid #444 !important;
+    border-radius: 6px !important;
+    text-shadow: none !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+    padding: 6px 12px !important;
+}
+
+.introjs-button:hover {
+    background-color: #444 !important;
+    border-color: #555 !important;
+    color: #fff !important;
+}
+
+.introjs-button:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2) !important;
+}
+
+.introjs-disabled {
+    color: #666 !important;
+    background-color: #2a2a2a !important;
+    border-color: #333 !important;
+}
+
+/* Botão de Done/Skip com destaque */
+.introjs-skipbutton {
+    color: #a0a0a0 !important;
+}
+
+.introjs-donebutton {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%) !important;
+    border: none !important;
+    color: white !important;
+}
+
+.introjs-donebutton:hover {
+    opacity: 0.9 !important;
+}
+
+/* Highlight layer */
+.introjs-helperLayer {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8) !important;
+}
+
+.introjs-overlay {
+    background: #000 !important;
+    opacity: 0.8 !important;
+}
+
+/* Progress bar (se ativado) */
+.introjs-progress-bar {
+    background-color: #6366f1 !important;
+}

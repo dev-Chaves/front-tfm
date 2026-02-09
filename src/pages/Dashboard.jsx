@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useTutorial } from '../hooks/useTutorial';
 import { useNavigate } from 'react-router-dom';
 import { setToken, getToken, removeToken, api } from '../services/api';
 import WorkoutCard from '../components/WorkoutCard';
@@ -34,6 +35,7 @@ function Dashboard() {
     const [syncMessage, setSyncMessage] = useState(null);
     const [dateFilter, setDateFilter] = useState('all'); // 'thisWeek', 'nextWeek', 'all'
     const [sortOrder, setSortOrder] = useState('asc'); // 'asc' = closest first, 'desc' = furthest first
+    const { startTutorial } = useTutorial();
 
     // Memoized loadWorkouts callback
     const loadWorkouts = useCallback(async () => {
@@ -216,7 +218,15 @@ function Dashboard() {
     // Memoized callbacks for opening/closing modals
     const openGoalModal = useCallback(() => setIsGoalModalOpen(true), []);
     const closeGoalModal = useCallback(() => setIsGoalModalOpen(false), []);
-    const closeSuccessPopup = useCallback(() => setIsSuccessPopupOpen(false), []);
+    const closeSuccessPopup = useCallback(() => {
+        setIsSuccessPopupOpen(false);
+        if (isFirstLogin) {
+            // Pequeno delay para garantir que o modal fechou e o DOM atualizou
+            setTimeout(() => {
+                startTutorial();
+            }, 500);
+        }
+    }, [isFirstLogin, startTutorial]);
 
     return (
         <div className="dashboard">
@@ -235,10 +245,10 @@ function Dashboard() {
                         <RefreshCw size={16} className={syncing ? 'spin-animation' : ''} style={{ marginRight: '8px' }} />
                         {syncing ? 'Sincronizando...' : 'Sincronizar Strava'}
                     </button>
-                    <button className="btn-secondary" onClick={openGoalModal}>
+                    <button className="btn-secondary btn-goal" onClick={openGoalModal}>
                         <Target size={16} style={{ marginRight: '8px' }} /> Minha Meta
                     </button>
-                    <button className="btn-secondary" onClick={handleGeneratePlan}>
+                    <button className="btn-secondary btn-generate" onClick={handleGeneratePlan}>
                         <Sparkles size={16} style={{ marginRight: '8px' }} /> Gerar Novo Plano
                     </button>
                     <button className="btn-logout" onClick={handleLogout}>
