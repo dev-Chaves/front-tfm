@@ -1,4 +1,4 @@
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useState, ChangeEvent, FormEvent, useRef } from 'react';
 import { Target, AlertTriangle, Sparkles, X, ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import './GoalModal.css';
 
@@ -21,6 +21,7 @@ interface GoalState {
 
 function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
     const [currentStep, setCurrentStep] = useState(1);
+    const lastStepChangeRef = useRef(0);
     const [hasTargetRace, setHasTargetRace] = useState(false);
     const [stepError, setStepError] = useState('');
     const [goalData, setGoalData] = useState<GoalState>({
@@ -77,16 +78,23 @@ function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
             }
         }
         setCurrentStep(prev => Math.min(prev + 1, 3));
+        lastStepChangeRef.current = Date.now();
     };
     const prevStep = () => {
         setStepError('');
         setCurrentStep(prev => Math.max(prev - 1, 1));
+        lastStepChangeRef.current = Date.now();
     };
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (currentStep < 3) {
             nextStep();
+            return;
+        }
+
+        // Previne submissão acidental por double-click ou enter-hold no passo anterior
+        if (Date.now() - lastStepChangeRef.current < 400) {
             return;
         }
         
