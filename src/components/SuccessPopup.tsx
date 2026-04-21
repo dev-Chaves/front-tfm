@@ -1,7 +1,13 @@
 import { PartyPopper } from 'lucide-react';
 import './SuccessPopup.css';
 
-function SuccessPopup({ isOpen, onClose, message }) {
+interface SuccessPopupProps {
+    isOpen: boolean;
+    onClose: () => void;
+    message?: string;
+}
+
+function SuccessPopup({ isOpen, onClose, message }: SuccessPopupProps) {
     if (!isOpen) return null;
 
     return (

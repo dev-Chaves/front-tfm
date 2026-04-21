@@ -37,14 +37,14 @@ export const fetchWithAuth = async (endpoint, options = {}) => {
 };
 
 export const api = {
-  getWorkouts: async () => {
-    const response = await fetchWithAuth('/workouts');
+  getWorkouts: async (page = 1, limit = 30) => {
+    const response = await fetchWithAuth(`/workouts?page=${page}&limit=${limit}`);
     if (!response.ok) throw new Error('Failed to fetch workouts');
     return response.json();
   },
 
-  getActivities: async () => {
-    const response = await fetchWithAuth('/activities');
+  getActivities: async (page = 1, limit = 30) => {
+    const response = await fetchWithAuth(`/activities?page=${page}&limit=${limit}`);
     if (!response.ok) throw new Error('Failed to fetch activities');
     return response.json();
   },

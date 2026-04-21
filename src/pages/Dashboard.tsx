@@ -6,6 +6,7 @@ import WorkoutCard from '../components/WorkoutCard';
 import ActivityCard from '../components/ActivityCard';
 import GoalModal from '../components/GoalModal';
 import SuccessPopup from '../components/SuccessPopup';
+import { DashboardItem, ActivityEntity } from '@shared/schemas';
 import {
     ClipboardList,
     Activity,
@@ -22,29 +23,42 @@ import './Dashboard.css';
 
 function Dashboard() {
     const navigate = useNavigate();
-    const [workouts, setWorkouts] = useState([]);
+    const [workouts, setWorkouts] = useState<DashboardItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
     const [isFirstLogin, setIsFirstLogin] = useState(false);
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
     const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
-    const [activities, setActivities] = useState([]);
+    const [activities, setActivities] = useState<ActivityEntity[]>([]);
     const [activeTab, setActiveTab] = useState('workouts');
     const [syncing, setSyncing] = useState(false);
-    const [syncMessage, setSyncMessage] = useState(null);
+    const [syncMessage, setSyncMessage] = useState<string | null>(null);
     const [dateFilter, setDateFilter] = useState('all'); // 'thisWeek', 'nextWeek', 'all'
     const [sortOrder, setSortOrder] = useState('asc'); // 'asc' = closest first, 'desc' = furthest first
+    const [workoutPage, setWorkoutPage] = useState(1);
+    const [activityPage, setActivityPage] = useState(1);
+    const [hasMoreWorkouts, setHasMoreWorkouts] = useState(true);
+    const [hasMoreActivities, setHasMoreActivities] = useState(true);
+    const LIMIT = 10;
     const { startTutorial } = useTutorial();
 
     // Memoized loadWorkouts callback
-    const loadWorkouts = useCallback(async () => {
+    const loadWorkouts = useCallback(async (page = 1) => {
         try {
-            setLoading(true);
+            if (page === 1) setLoading(true);
             setError(null);
-            const data = await api.getWorkouts();
-            console.log('📋 Workouts API Response:', data);
-            setWorkouts(data);
+            const data = await api.getWorkouts(page, LIMIT);
+            console.log(`📋 Workouts API Response (Page ${page}):`, data);
+            
+            if (page === 1) {
+                setWorkouts(data);
+            } else {
+                setWorkouts(prev => [...prev, ...data]);
+            }
+            
+            setHasMoreWorkouts(data.length === LIMIT);
+            setWorkoutPage(page);
         } catch (err) {
             console.error('Error loading workouts:', err);
             setError('Erro ao carregar treinos. Tente novamente.');
@@ -54,21 +68,29 @@ function Dashboard() {
     }, []);
 
     // Memoized loadActivities callback
-    const loadActivities = useCallback(async () => {
+    const loadActivities = useCallback(async (page = 1) => {
         try {
-            const data = await api.getActivities();
+            const data = await api.getActivities(page, LIMIT);
+            
+            let newActivities = [];
             // Ensure data is always an array
             if (Array.isArray(data)) {
-                setActivities(data);
+                newActivities = data;
             } else if (data && data.activities) {
                 // Handle case where API returns { activities: [...] }
-                setActivities(data.activities);
-            } else {
-                setActivities([]);
+                newActivities = data.activities;
             }
+
+            if (page === 1) {
+                setActivities(newActivities);
+            } else {
+                setActivities(prev => [...prev, ...newActivities]);
+            }
+
+            setHasMoreActivities(newActivities.length === LIMIT);
+            setActivityPage(page);
         } catch (err) {
             console.error('Error loading activities:', err);
-            setActivities([]);
         }
     }, []);
 
@@ -92,9 +114,9 @@ function Dashboard() {
             return;
         }
 
-        loadWorkouts();
-        loadActivities();
-    }, [navigate, loadWorkouts, loadActivities]);
+        loadWorkouts(1);
+        loadActivities(1);
+    }, [navigate]); // Only on mount or token change (though navigate is stable)
 
     // Abrir modal de metas automaticamente no primeiro login
     useEffect(() => {
@@ -113,7 +135,7 @@ function Dashboard() {
             setLoading(true);
             // O backend já salva os treinos automaticamente ao gerar o plano
             await api.generateWorkoutPlan();
-            await loadWorkouts();
+            await loadWorkouts(1);
         } catch (err) {
             console.warn('Aviso ao gerar plano:', err.message);
             setError(err.message || 'Erro ao gerar plano de treinos.');
@@ -145,7 +167,7 @@ function Dashboard() {
                 setSyncMessage('Sincronização realizada!');
             }
             // Reload activities after sync
-            await loadActivities();
+            await loadActivities(1);
         } catch (err) {
             console.error('Error syncing:', err);
             setSyncMessage('Erro ao sincronizar. Tente novamente.');
@@ -155,6 +177,14 @@ function Dashboard() {
             setTimeout(() => setSyncMessage(null), 5000);
         }
     }, [loadActivities]);
+
+    const handleLoadMoreWorkouts = useCallback(() => {
+        loadWorkouts(workoutPage + 1);
+    }, [loadWorkouts, workoutPage]);
+
+    const handleLoadMoreActivities = useCallback(() => {
+        loadActivities(activityPage + 1);
+    }, [loadActivities, activityPage]);
 
     // Memoized status counts calculation - expensive operation
     const statusCounts = useMemo(() => {
@@ -376,6 +406,13 @@ function Dashboard() {
                                         <WorkoutCard key={workout.id} workout={workout} />
                                     ))}
                                 </div>
+                                {hasMoreWorkouts && (
+                                    <div className="load-more-container">
+                                        <button className="btn-load-more" onClick={handleLoadMoreWorkouts} disabled={loading}>
+                                            {loading ? 'Carregando...' : 'Carregar mais treinos'}
+                                        </button>
+                                    </div>
+                                )}
                             </>
                         )}
                     </>
@@ -390,11 +427,20 @@ function Dashboard() {
                                 <p>Suas atividades do Strava aparecerão aqui após sincronização.</p>
                             </div>
                         ) : (
-                            <div className="activities-grid">
-                                {activities.map((activity) => (
-                                    <ActivityCard key={activity.id} activity={activity} />
-                                ))}
-                            </div>
+                            <>
+                                <div className="activities-grid">
+                                    {activities.map((activity) => (
+                                        <ActivityCard key={activity.id} activity={activity} />
+                                    ))}
+                                </div>
+                                {hasMoreActivities && (
+                                    <div className="load-more-container">
+                                        <button className="btn-load-more" onClick={handleLoadMoreActivities}>
+                                            Carregar mais atividades
+                                        </button>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </>
                 )}

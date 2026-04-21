@@ -19,44 +19,41 @@ import {
     Check,
     AlertCircle
 } from 'lucide-react';
+import { DashboardItem } from '@shared/schemas';
 import './WorkoutCard.css';
 
-const WorkoutCard = memo(function WorkoutCard({ workout }) {
+interface WorkoutCardProps {
+    workout: DashboardItem;
+}
+
+const WorkoutCard = memo(function WorkoutCard({ workout }: WorkoutCardProps) {
     const [expanded, setExpanded] = useState(false);
     const [showHowTo, setShowHowTo] = useState(false);
 
-    // Extract base fields
+    // Extract fields from DashboardItem
     const {
-        id,
         data,
         status,
         tipo,
+        titulo,
+        objetivo_sessao,
         distancia_planejada,
         pace_planejado,
+        tempo_estimado_min,
+        fases,
+        dicas_execucao,
+        sensacao_esperada,
+        mensagem_coach,
+        foco_semana,
         distancia_realizada,
         pace_realizado,
-        coach,
-        structure, // Backend may nest data here
-        description
+        coach
     } = workout;
 
-    // Try to get fields from structure first, then from workout directly
-    const s = structure || {};
-    const titulo = s.titulo || workout.titulo || tipo;
-    const objetivo_sessao = s.objetivo_sessao || workout.objetivo_sessao;
-    const distancia_total_km = s.distancia_total_km || workout.distancia_total_km || distancia_planejada;
-    const tempo_estimado_min = s.tempo_estimado_min || workout.tempo_estimado_min;
-    const fases = s.fases || workout.fases;
-    const dicas_execucao = s.dicas_execucao || workout.dicas_execucao;
-    const sensacao_esperada = s.sensacao_esperada || workout.sensacao_esperada;
-    const contexto_semana = s.contexto_semana || workout.contexto_semana;
-    const mensagem_coach = s.mensagem_coach || workout.mensagem_coach;
-    const foco_semana = s.foco_semana || workout.foco_semana;
-
-    const formatDate = (dateStr) => {
+    const formatDate = (dateStr: string) => {
         // Adiciona horário para evitar problemas de timezone (UTC vs local)
         const date = new Date(dateStr + 'T12:00:00');
-        const options = { weekday: 'short', day: 'numeric', month: 'short' };
+        const options: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short' };
         return date.toLocaleDateString('pt-BR', options);
     };
 
@@ -77,7 +74,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
 
     const effectiveStatus = getEffectiveStatus();
 
-    const getStatusConfig = (status) => {
+    const getStatusConfig = (status: string) => {
         switch (status) {
             case 'Concluido':
                 return { label: 'Concluído', class: 'status-completed', icon: <CheckCircle size={16} /> };
@@ -92,7 +89,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
 
     const statusConfig = getStatusConfig(effectiveStatus);
 
-    const getScoreColor = (score) => {
+    const getScoreColor = (score: number) => {
         if (score >= 8) return 'score-high';
         if (score >= 5) return 'score-medium';
         return 'score-low';
@@ -100,7 +97,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
 
     // Get values with fallbacks
     const displayTitulo = titulo || tipo || 'Treino';
-    const displayDistancia = distancia_total_km || distancia_planejada;
+    const displayDistancia = distancia_planejada;
     const displayTempo = tempo_estimado_min;
     const zonaFC = fases?.principal?.zona_fc;
 
@@ -118,7 +115,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
             </div>
 
             {/* Title Block */}
-            <div className="title-block">
+            <div className="title-block" onClick={() => setExpanded(!expanded)} style={{ cursor: 'pointer' }}>
                 <h3 className="card-title">{displayTitulo}</h3>
                 {objetivo_sessao && (
                     <p className="card-objective">{objetivo_sessao}</p>
@@ -134,22 +131,22 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
 
             {/* Quick Stats */}
             <div className="quick-stats">
-                {displayDistancia && (
+                {displayDistancia > 0 && (
                     <div className="stat-pill">
                         <span className="pill-icon"><MapPin size={16} /></span>
                         <span>{displayDistancia} km</span>
                     </div>
                 )}
-                {displayTempo && (
+                {displayTempo > 0 && (
                     <div className="stat-pill">
                         <span className="pill-icon"><Clock size={16} /></span>
                         <span>{displayTempo} min</span>
                     </div>
                 )}
-                {zonaFC && (
-                    <div className="stat-pill zona-pill">
-                        <span className="pill-icon"><Heart size={16} /></span>
-                        <span>Zona {zonaFC}</span>
+                {pace_planejado && (
+                    <div className="stat-pill">
+                        <span className="pill-icon"><Target size={16} /></span>
+                        <span>Pace: {pace_planejado}</span>
                     </div>
                 )}
             </div>
@@ -165,7 +162,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
                                 <div className="phase-header">
                                     <span className="phase-icon"><Thermometer size={16} /></span>
                                     <span className="phase-title">Aquecimento</span>
-                                    {fases.aquecimento.duracao_min && (
+                                    {fases.aquecimento.duracao_min > 0 && (
                                         <span className="phase-duration">{fases.aquecimento.duracao_min} min</span>
                                     )}
                                 </div>
@@ -192,7 +189,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
                                 )}
 
                                 {/* Series Card */}
-                                {fases.principal.tipo_estrutura === 'intervalado' && fases.principal.series?.length > 0 && (
+                                {fases.principal.tipo_estrutura === 'intervalado' && fases.principal.series && fases.principal.series.length > 0 && (
                                     <div className="series-card">
                                         {fases.principal.series.map((serie, idx) => (
                                             <div key={idx} className="serie-row">
@@ -240,7 +237,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
                                 <div className="phase-header">
                                     <span className="phase-icon"><Snowflake size={16} /></span>
                                     <span className="phase-title">Desaquecimento</span>
-                                    {fases.desaquecimento.duracao_min && (
+                                    {fases.desaquecimento.duracao_min > 0 && (
                                         <span className="phase-duration">{fases.desaquecimento.duracao_min} min</span>
                                     )}
                                 </div>
@@ -255,7 +252,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
             )}
 
             {/* How To Execute - Collapsible */}
-            {fases?.principal?.como_executar?.length > 0 && (
+            {fases?.principal?.como_executar && fases.principal.como_executar.length > 0 && (
                 <div className="howto-section">
                     <button
                         className="howto-toggle"
@@ -276,7 +273,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
             )}
 
             {/* Coach Tips - Chips */}
-            {dicas_execucao?.length > 0 && (
+            {dicas_execucao && dicas_execucao.length > 0 && (
                 <div className="tips-section">
                     <span className="tips-label"><Lightbulb size={16} style={{ display: 'inline', marginRight: '6px' }} /> Dicas:</span>
                     <div className="tips-chips">
@@ -329,9 +326,9 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
                         <span className="feedback-title">
                             {coach.titulo_feedback || 'Feedback do Coach'}
                         </span>
-                        {coach.pontuacao && (
-                            <span className={`feedback-score ${getScoreColor(coach.pontuacao)}`}>
-                                {coach.pontuacao}/10
+                        {coach.score > 0 && (
+                            <span className={`feedback-score ${getScoreColor(coach.score)}`}>
+                                {coach.score}/10
                             </span>
                         )}
                     </div>
@@ -344,7 +341,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
                         <div className="feedback-splits">{coach.analise_splits}</div>
                     )}
 
-                    {coach.aspectos_positivos?.length > 0 && (
+                    {coach.aspectos_positivos && coach.aspectos_positivos.length > 0 && (
                         <div className="feedback-tags positive">
                             {coach.aspectos_positivos.map((item, i) => (
                                 <span key={i} className="feedback-tag"><Check size={14} style={{ display: 'inline', marginRight: '4px' }} /> {item}</span>
@@ -352,7 +349,7 @@ const WorkoutCard = memo(function WorkoutCard({ workout }) {
                         </div>
                     )}
 
-                    {coach.areas_melhoria?.length > 0 && (
+                    {coach.areas_melhoria && coach.areas_melhoria.length > 0 && (
                         <div className="feedback-tags improvement">
                             {coach.areas_melhoria.map((item, i) => (
                                 <span key={i} className="feedback-tag"><AlertCircle size={14} style={{ display: 'inline', marginRight: '4px' }} /> {item}</span>
