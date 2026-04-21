@@ -21,6 +21,8 @@ interface GoalState {
 
 function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
     const [currentStep, setCurrentStep] = useState(1);
+    const [hasTargetRace, setHasTargetRace] = useState(false);
+    const [stepError, setStepError] = useState('');
     const [goalData, setGoalData] = useState<GoalState>({
         targetRace: '',
         raceDistance: '',
@@ -62,8 +64,24 @@ function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
         { value: 6, label: 'Sáb' }
     ];
 
-    const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 3));
-    const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
+    const nextStep = () => {
+        setStepError('');
+        if (currentStep === 1) {
+            if (!goalData.raceDistance) {
+                setStepError('Selecione a distância alvo.');
+                return;
+            }
+            if (hasTargetRace && (!goalData.targetRace || !goalData.raceDate)) {
+                setStepError('Preencha o nome e a data da prova alvo.');
+                return;
+            }
+        }
+        setCurrentStep(prev => Math.min(prev + 1, 3));
+    };
+    const prevStep = () => {
+        setStepError('');
+        setCurrentStep(prev => Math.max(prev - 1, 1));
+    };
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -122,23 +140,16 @@ function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
                 {renderStepIndicator()}
 
                 <form onSubmit={handleSubmit} className="modal-form">
-                    <div className={`step-content ${currentStep === 1 ? 'active' : ''}`}>
-                        <div className="form-group">
-                            <label htmlFor="targetRace">Prova Alvo</label>
-                            <input
-                                type="text"
-                                id="targetRace"
-                                name="targetRace"
-                                placeholder="Ex: Meia Maratona de São Paulo"
-                                value={goalData.targetRace}
-                                onChange={handleChange}
-                                autoFocus
-                            />
+                    {stepError && (
+                        <div className="step-error">
+                            <AlertTriangle size={16} style={{ flexShrink: 0 }} />
+                            <span>{stepError}</span>
                         </div>
-
+                    )}
+                    <div className={`step-content ${currentStep === 1 ? 'active' : ''}`}>
                         <div className="form-row">
                             <div className="form-group">
-                                <label htmlFor="raceDistance">Distância</label>
+                                <label htmlFor="raceDistance">Distância Alvo *</label>
                                 <select
                                     id="raceDistance"
                                     name="raceDistance"
@@ -155,7 +166,7 @@ function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="targetTime">Tempo Alvo</label>
+                                <label htmlFor="targetTime">Tempo Alvo (Opcional)</label>
                                 <input
                                     type="text"
                                     id="targetTime"
@@ -167,16 +178,50 @@ function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
                             </div>
                         </div>
 
-                        <div className="form-group">
-                            <label htmlFor="raceDate">Data da Prova</label>
-                            <input
-                                type="date"
-                                id="raceDate"
-                                name="raceDate"
-                                value={goalData.raceDate}
-                                onChange={handleChange}
-                            />
+                        <div className="form-group checkbox-group">
+                            <label className="checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    checked={hasTargetRace}
+                                    onChange={(e) => {
+                                        setHasTargetRace(e.target.checked);
+                                        if (!e.target.checked) {
+                                            setGoalData(prev => ({ ...prev, targetRace: '', raceDate: '' }));
+                                            setStepError('');
+                                        }
+                                    }}
+                                />
+                                Tenho uma prova alvo (Nome e Data)
+                            </label>
                         </div>
+
+                        {hasTargetRace && (
+                            <div className="target-race-fields">
+                                <div className="form-group">
+                                    <label htmlFor="targetRace">Nome da Prova *</label>
+                                    <input
+                                        type="text"
+                                        id="targetRace"
+                                        name="targetRace"
+                                        placeholder="Ex: Meia Maratona de São Paulo"
+                                        value={goalData.targetRace}
+                                        onChange={handleChange}
+                                        autoFocus
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="raceDate">Data da Prova *</label>
+                                    <input
+                                        type="date"
+                                        id="raceDate"
+                                        name="raceDate"
+                                        value={goalData.raceDate}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className={`step-content ${currentStep === 2 ? 'active' : ''}`}>

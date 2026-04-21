@@ -61,6 +61,26 @@
     font-size: 0.95rem;
 }
 
+.step-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 12px;
+    padding: 0.875rem 1.25rem;
+    margin-bottom: 1.25rem;
+    color: #fca5a5;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
 .modal-close {
     width: 36px;
     height: 36px;
@@ -186,6 +206,54 @@
     border-color: #fc4c02;
     background: rgba(252, 76, 2, 0.05);
     box-shadow: 0 0 0 4px rgba(252, 76, 2, 0.15);
+}
+
+/* Checkbox Group */
+.checkbox-group {
+    margin: 0.5rem 0;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    transition: all 0.2s;
+}
+
+.checkbox-group:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    color: #fff !important;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #fc4c02;
+    cursor: pointer;
+    margin: 0;
+}
+
+.target-race-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1rem 0 0 1.25rem;
+    border-left: 2px solid rgba(252, 76, 2, 0.3);
+    margin-left: 0.75rem;
+    animation: slideInLeft 0.3s ease;
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
 /* Level Selector */
