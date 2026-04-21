@@ -11,9 +11,14 @@ import {
     MountainSnow,
     Dumbbell
 } from 'lucide-react';
+import { ActivityResponseDTO } from '@shared/schemas';
 import './ActivityCard.css';
 
-const ActivityCard = memo(function ActivityCard({ activity }) {
+interface ActivityCardProps {
+    activity: ActivityResponseDTO;
+}
+
+const ActivityCard = memo(function ActivityCard({ activity }: ActivityCardProps) {
     const {
         stravaId,
         name,
@@ -28,14 +33,14 @@ const ActivityCard = memo(function ActivityCard({ activity }) {
         achievement_count
     } = activity;
 
-    const formatDate = (dateStr) => {
+    const formatDate = (dateStr: string) => {
         if (!dateStr) return '';
         const date = new Date(dateStr);
-        const options = { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
+        const options: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
         return date.toLocaleDateString('pt-BR', options);
     };
 
-    const getActivityIcon = (type) => {
+    const getActivityIcon = (type: string) => {
         switch (type?.toLowerCase()) {
             case 'run':
             case 'running':
@@ -65,7 +70,7 @@ const ActivityCard = memo(function ActivityCard({ activity }) {
                     <h3 className="activity-name">{name || 'Atividade'}</h3>
                     <span className="activity-date">{formatDate(startDate)}</span>
                 </div>
-                {kudos_count > 0 && (
+                {kudos_count !== undefined && kudos_count > 0 && (
                     <div className="activity-kudos">
                         <span className="kudos-icon"><ThumbsUp size={14} /></span>
                         <span className="kudos-count">{kudos_count}</span>
@@ -89,19 +94,19 @@ const ActivityCard = memo(function ActivityCard({ activity }) {
             </div>
 
             <div className="activity-details">
-                {average_heartrate && (
+                {average_heartrate !== undefined && average_heartrate > 0 && (
                     <div className="detail-item">
                         <span className="detail-icon"><Heart size={16} /></span>
                         <span className="detail-text">{Math.round(average_heartrate)} bpm</span>
                     </div>
                 )}
-                {total_elevation_gain > 0 && (
+                {total_elevation_gain !== undefined && total_elevation_gain > 0 && (
                     <div className="detail-item">
                         <span className="detail-icon"><Mountain size={16} /></span>
                         <span className="detail-text">{Math.round(total_elevation_gain)}m</span>
                     </div>
                 )}
-                {achievement_count > 0 && (
+                {achievement_count !== undefined && achievement_count > 0 && (
                     <div className="detail-item">
                         <span className="detail-icon"><Trophy size={16} /></span>
                         <span className="detail-text">{achievement_count}</span>
