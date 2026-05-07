@@ -29,7 +29,10 @@ export const fetchWithAuth = async (endpoint, options = {}) => {
 
   if (response.status === 401) {
     removeToken();
-    window.location.href = '/?error=session_expired';
+    // Emite evento para que componentes possam reagir gracefulmente
+    window.dispatchEvent(new CustomEvent('tfm:sessionExpired', {
+      detail: { message: 'Sessão expirada. Por favor, faça login novamente.' }
+    }));
     throw new Error('Session expired');
   }
 

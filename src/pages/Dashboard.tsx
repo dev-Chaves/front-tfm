@@ -6,7 +6,7 @@ import WorkoutCard from '../components/WorkoutCard';
 import ActivityCard from '../components/ActivityCard';
 import GoalModal from '../components/GoalModal';
 import SuccessPopup from '../components/SuccessPopup';
-import { DashboardItem, ActivityEntity } from '@shared/schemas';
+import { DashboardItem, ActivityResponseDTO } from '@shared/schemas';
 import {
     ClipboardList,
     Activity,
@@ -30,7 +30,7 @@ function Dashboard() {
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
     const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
-    const [activities, setActivities] = useState<ActivityEntity[]>([]);
+    const [activities, setActivities] = useState<ActivityResponseDTO[]>([]);
     const [activeTab, setActiveTab] = useState('workouts');
     const [syncing, setSyncing] = useState(false);
     const [syncMessage, setSyncMessage] = useState<string | null>(null);
