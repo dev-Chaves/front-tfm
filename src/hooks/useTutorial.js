@@ -7,8 +7,32 @@ export function useTutorial() {
     const startTutorial = useCallback(() => {
         const intro = introJs();
 
+        // Verifica se os elementos existem no DOM antes de iniciar
+        const steps = [
+            { selector: '.welcome-banner', title: 'Bem-vindo!', intro: 'Bem-vindo ao TFM! Aqui você pode acompanhar seu progresso diário.' },
+            { selector: '.btn-sync', title: 'Sincronizar', intro: 'Clique aqui para sincronizar suas atividades mais recentes do Strava.' },
+            { selector: '.btn-goal', title: 'Minha Meta', intro: 'Defina ou atualize sua meta principal aqui.' },
+            { selector: '.btn-generate', title: 'Gerar Plano', intro: 'Use nossa IA para gerar um plano de treinos personalizado para você.' },
+            { selector: '.stats-cards', title: 'Estatísticas', intro: 'Acompanhe o status dos seus treinos: Pendentes, Concluídos e Perdidos.' },
+            { selector: '.tabs-container', title: 'Navegação', intro: 'Alterne entre seus treinos planejados e as atividades que você já realizou.' },
+            { selector: '.filters-bar', title: 'Filtros', intro: 'Filtre seus treinos por período ou ordem de data.' }
+        ];
+
+        const validSteps = steps
+            .filter(step => document.querySelector(step.selector))
+            .map(step => ({
+                element: step.selector,
+                title: step.title,
+                intro: step.intro
+            }));
+
+        if (validSteps.length === 0) {
+            console.log('useTutorial: Nenhum elemento encontrado para o tutorial');
+            return;
+        }
+
         intro.setOptions({
-            steps: [
+            steps: validSteps,
                 {
                     element: '.welcome-banner',
                     intro: 'Bem-vindo ao TFM! Aqui você pode acompanhar seu progresso diário.',
