@@ -647,6 +647,40 @@
     letter-spacing: 0.05em;
 }
 
+/* Week Navigation */
+.week-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.week-nav .week-label {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: #e2e8f0;
+    min-width: 180px;
+    justify-content: center;
+    font-size: 0.95rem;
+}
+
+.week-nav button {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+}
+
+.week-nav button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* Load More */
 .load-more-container {
     display: flex;

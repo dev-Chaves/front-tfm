@@ -40,8 +40,11 @@ export const fetchWithAuth = async (endpoint, options = {}) => {
 };
 
 export const api = {
-  getWorkouts: async (page = 1, limit = 30) => {
-    const response = await fetchWithAuth(`/workouts?page=${page}&limit=${limit}`);
+  getWorkouts: async (page = 1, limit = 30, { startDate, endDate } = {}) => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    const response = await fetchWithAuth(`/workouts?${params.toString()}`);
     if (!response.ok) throw new Error('Failed to fetch workouts');
     return response.json();
   },

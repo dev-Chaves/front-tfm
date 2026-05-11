@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useTutorial } from '../hooks/useTutorial';
 import { useNavigate } from 'react-router-dom';
 import { setToken, getToken, removeToken, api } from '../services/api';
@@ -17,9 +17,41 @@ import {
     AlertTriangle,
     CheckCircle,
     XCircle,
-    Info
+    Info,
+    ChevronLeft,
+    ChevronRight,
+    Calendar
 } from 'lucide-react';
 import './Dashboard.css';
+
+function getWeekRange(offset: number) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dayOfWeek = today.getDay();
+    const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - daysFromMonday + offset * 7);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    const formatDate = (date: Date) => date.toISOString().split('T')[0];
+
+    return {
+        startDate: formatDate(startOfWeek),
+        endDate: formatDate(endOfWeek)
+    };
+}
+
+function formatWeekLabel(offset: number) {
+    const { startDate, endDate } = getWeekRange(offset);
+    const format = (dateStr: string) => {
+        const date = new Date(dateStr + 'T12:00:00');
+        return date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
+    };
+    return `${format(startDate)} – ${format(endDate)}`;
+}
 
 function Dashboard() {
     const navigate = useNavigate();
@@ -34,30 +66,45 @@ function Dashboard() {
     const [activeTab, setActiveTab] = useState('workouts');
     const [syncing, setSyncing] = useState(false);
     const [syncMessage, setSyncMessage] = useState<string | null>(null);
-    const [dateFilter, setDateFilter] = useState('all'); // 'thisWeek', 'nextWeek', 'all'
-    const [sortOrder, setSortOrder] = useState('asc'); // 'asc' = closest first, 'desc' = furthest first
+    const [weekOffset, setWeekOffset] = useState(0);
     const [workoutPage, setWorkoutPage] = useState(1);
-    const [activityPage, setActivityPage] = useState(1);
     const [hasMoreWorkouts, setHasMoreWorkouts] = useState(true);
     const [hasMoreActivities, setHasMoreActivities] = useState(true);
-    const LIMIT = 10;
+    const PAGE_SIZE = 5;
     const { startTutorial } = useTutorial();
+    const isAutoAdvancing = useRef(false);
 
-    // Memoized loadWorkouts callback
-    const loadWorkouts = useCallback(async (page = 1) => {
+    // Memoized loadWorkoutsForWeek callback
+    const loadWorkoutsForWeek = useCallback(async (offset: number, page = 1) => {
         try {
             if (page === 1) setLoading(true);
             setError(null);
-            const data = await api.getWorkouts(page, LIMIT);
-            console.log(`📋 Workouts API Response (Page ${page}):`, data);
-            
+
+            const { startDate, endDate } = getWeekRange(offset);
+            const data = await api.getWorkouts(page, PAGE_SIZE, { startDate, endDate });
+            console.log(`📋 Workouts API Response (Week ${offset}, Page ${page}):`, data);
+
+            const sortedData = [...data].sort((a, b) =>
+                new Date(a.data + 'T12:00:00').getTime() - new Date(b.data + 'T12:00:00').getTime()
+            );
+
             if (page === 1) {
-                setWorkouts(data);
+                setWorkouts(sortedData);
+
+                // Auto-advance to next week if current week is empty
+                if (sortedData.length === 0 && offset === 0 && !isAutoAdvancing.current) {
+                    isAutoAdvancing.current = true;
+                    console.log('📅 Semana atual vazia, buscando próxima semana...');
+                    setWeekOffset(1);
+                    return;
+                }
             } else {
-                setWorkouts(prev => [...prev, ...data]);
+                setWorkouts(prev => [...prev, ...sortedData].sort((a, b) =>
+                    new Date(a.data + 'T12:00:00').getTime() - new Date(b.data + 'T12:00:00').getTime()
+                ));
             }
-            
-            setHasMoreWorkouts(data.length === LIMIT);
+
+            setHasMoreWorkouts(data.length === PAGE_SIZE);
             setWorkoutPage(page);
         } catch (err) {
             console.error('Error loading workouts:', err);
@@ -70,14 +117,12 @@ function Dashboard() {
     // Memoized loadActivities callback
     const loadActivities = useCallback(async (page = 1) => {
         try {
-            const data = await api.getActivities(page, LIMIT);
-            
+            const data = await api.getActivities(page, 10);
+
             let newActivities = [];
-            // Ensure data is always an array
             if (Array.isArray(data)) {
                 newActivities = data;
             } else if (data && data.activities) {
-                // Handle case where API returns { activities: [...] }
                 newActivities = data.activities;
             }
 
@@ -87,8 +132,7 @@ function Dashboard() {
                 setActivities(prev => [...prev, ...newActivities]);
             }
 
-            setHasMoreActivities(newActivities.length === LIMIT);
-            setActivityPage(page);
+            setHasMoreActivities(newActivities.length === 10);
         } catch (err) {
             console.error('Error loading activities:', err);
         }
@@ -98,25 +142,26 @@ function Dashboard() {
         // Check for token in URL (redirect from OAuth)
         const params = new URLSearchParams(window.location.search);
         const urlToken = params.get('token');
-        const firstLogin = params.get('firstLogin'); // typo matches backend
+        const firstLogin = params.get('firstLogin');
 
         if (urlToken) {
             setToken(urlToken);
             setIsFirstLogin(firstLogin === 'true');
             console.log('🔐 Login detected. firstLogin param:', firstLogin, 'State set to:', firstLogin === 'true');
-            // Clean URL
             window.history.replaceState({}, document.title, '/dashboard');
         }
 
-        // Check if authenticated
         if (!getToken()) {
             navigate('/?error=session_expired');
             return;
         }
 
-        loadWorkouts(1);
         loadActivities(1);
-    }, [navigate]); // Only on mount or token change (though navigate is stable)
+    }, [navigate, loadActivities]);
+
+    useEffect(() => {
+        loadWorkoutsForWeek(weekOffset, 1);
+    }, [weekOffset, loadWorkoutsForWeek]);
 
     // Abrir modal de metas automaticamente no primeiro login
     useEffect(() => {
@@ -133,16 +178,15 @@ function Dashboard() {
     const handleGeneratePlan = useCallback(async () => {
         try {
             setLoading(true);
-            // O backend já salva os treinos automaticamente ao gerar o plano
             await api.generateWorkoutPlan();
-            await loadWorkouts(1);
+            await loadWorkoutsForWeek(weekOffset, 1);
         } catch (err) {
             console.warn('Aviso ao gerar plano:', err.message);
             setError(err.message || 'Erro ao gerar plano de treinos.');
         } finally {
             setLoading(false);
         }
-    }, [loadWorkouts]);
+    }, [loadWorkoutsForWeek, weekOffset]);
 
     const handleSaveGoal = useCallback(async (goalData) => {
         try {
@@ -160,40 +204,36 @@ function Dashboard() {
             setSyncing(true);
             setSyncMessage(null);
             const result = await api.syncActivities();
-            // Handle the sync response
             if (result && result.new_activities_linked !== undefined) {
                 setSyncMessage(`${result.message || 'Sincronização realizada!'}`);
             } else {
                 setSyncMessage('Sincronização realizada!');
             }
-            // Reload activities after sync
             await loadActivities(1);
         } catch (err) {
             console.error('Error syncing:', err);
             setSyncMessage('Erro ao sincronizar. Tente novamente.');
         } finally {
             setSyncing(false);
-            // Clear message after 5 seconds
             setTimeout(() => setSyncMessage(null), 5000);
         }
     }, [loadActivities]);
 
     const handleLoadMoreWorkouts = useCallback(() => {
-        loadWorkouts(workoutPage + 1);
-    }, [loadWorkouts, workoutPage]);
+        loadWorkoutsForWeek(weekOffset, workoutPage + 1);
+    }, [loadWorkoutsForWeek, weekOffset, workoutPage]);
 
     const handleLoadMoreActivities = useCallback(() => {
-        loadActivities(activityPage + 1);
-    }, [loadActivities, activityPage]);
+        loadActivities(1); // Activities are not paginated by week, keep simple
+    }, [loadActivities]);
 
-    // Memoized status counts calculation - expensive operation
+    // Memoized status counts calculation
     const statusCounts = useMemo(() => {
         const counts = { Pendente: 0, Concluido: 0, Perdido: 0 };
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
         workouts.forEach(w => {
-            // Calculate effective status based on date
             let effectiveStatus = w.status;
 
             if (w.status !== 'Concluido') {
@@ -212,47 +252,13 @@ function Dashboard() {
         return counts;
     }, [workouts]);
 
-    // Memoized filtered and sorted workouts
-    const filteredAndSortedWorkouts = useMemo(() => {
-        return workouts
-            .filter(workout => {
-                if (dateFilter === 'all') return true;
-                const workoutDate = new Date(workout.data + 'T12:00:00');
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
+    const weekLabel = useMemo(() => formatWeekLabel(weekOffset), [weekOffset]);
 
-                if (dateFilter === 'thisWeek') {
-                    const endOfWeek = new Date(today);
-                    endOfWeek.setDate(today.getDate() + (7 - today.getDay()));
-                    return workoutDate >= today && workoutDate <= endOfWeek;
-                }
-                if (dateFilter === 'nextWeek') {
-                    const startOfNextWeek = new Date(today);
-                    startOfNextWeek.setDate(today.getDate() + (7 - today.getDay()) + 1);
-                    const endOfNextWeek = new Date(startOfNextWeek);
-                    endOfNextWeek.setDate(startOfNextWeek.getDate() + 6);
-                    return workoutDate >= startOfNextWeek && workoutDate <= endOfNextWeek;
-                }
-                if (dateFilter === 'thisMonth') {
-                    return workoutDate.getMonth() === today.getMonth() &&
-                        workoutDate.getFullYear() === today.getFullYear();
-                }
-                return true;
-            })
-            .sort((a, b) => {
-                const dateA = new Date(a.data + 'T12:00:00');
-                const dateB = new Date(b.data + 'T12:00:00');
-                return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-            });
-    }, [workouts, dateFilter, sortOrder]);
-
-    // Memoized callbacks for opening/closing modals
     const openGoalModal = useCallback(() => setIsGoalModalOpen(true), []);
     const closeGoalModal = useCallback(() => setIsGoalModalOpen(false), []);
     const closeSuccessPopup = useCallback(() => {
         setIsSuccessPopupOpen(false);
         if (isFirstLogin) {
-            // Pequeno delay para garantir que o modal fechou e o DOM atualizou
             setTimeout(() => {
                 console.log('🚀 Starting tutorial from closeSuccessPopup...');
                 startTutorial();
@@ -365,44 +371,38 @@ function Dashboard() {
                         ) : workouts.length === 0 ? (
                             <div className="empty-state">
                                 <div className="empty-icon"><ClipboardList size={48} /></div>
-                                <h3>Nenhum treino encontrado</h3>
-                                <p>Clique em "Gerar Novo Plano" para criar seu primeiro plano de treinos com IA!</p>
+                                <h3>Nenhum treino nesta semana</h3>
+                                <p>Não há treinos agendados para {weekLabel}.</p>
                                 <button className="btn-primary" onClick={handleGeneratePlan}>
                                     <Sparkles size={16} style={{ marginRight: '8px' }} /> Gerar Plano de Treinos
                                 </button>
                             </div>
                         ) : (
                             <>
-                                {/* Filters */}
-                                <div className="filters-bar">
-                                    <div className="filter-group">
-                                        <label>Período:</label>
-                                        <select
-                                            value={dateFilter}
-                                            onChange={(e) => setDateFilter(e.target.value)}
-                                            className="filter-select"
-                                        >
-                                            <option value="all">Todos</option>
-                                            <option value="thisWeek">Esta semana</option>
-                                            <option value="nextWeek">Próxima semana</option>
-                                            <option value="thisMonth">Este mês</option>
-                                        </select>
-                                    </div>
-                                    <div className="filter-group">
-                                        <label>Ordenar:</label>
-                                        <select
-                                            value={sortOrder}
-                                            onChange={(e) => setSortOrder(e.target.value)}
-                                            className="filter-select"
-                                        >
-                                            <option value="asc">Mais próximos primeiro</option>
-                                            <option value="desc">Mais distantes primeiro</option>
-                                        </select>
-                                    </div>
+                                {/* Week Navigation */}
+                                <div className="week-nav">
+                                    <button
+                                        className="btn-secondary"
+                                        onClick={() => setWeekOffset(prev => prev - 1)}
+                                        disabled={loading}
+                                    >
+                                        <ChevronLeft size={16} style={{ marginRight: '4px' }} /> Anterior
+                                    </button>
+                                    <span className="week-label">
+                                        <Calendar size={16} style={{ marginRight: '6px' }} />
+                                        {weekLabel}
+                                    </span>
+                                    <button
+                                        className="btn-secondary"
+                                        onClick={() => setWeekOffset(prev => prev + 1)}
+                                        disabled={loading}
+                                    >
+                                        Próxima <ChevronRight size={16} style={{ marginLeft: '4px' }} />
+                                    </button>
                                 </div>
 
                                 <div className="workouts-grid">
-                                    {filteredAndSortedWorkouts.map((workout) => (
+                                    {workouts.map((workout) => (
                                         <WorkoutCard key={workout.id} workout={workout} />
                                     ))}
                                 </div>
@@ -472,4 +472,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-
