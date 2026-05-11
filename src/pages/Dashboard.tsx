@@ -368,18 +368,9 @@ function Dashboard() {
                                 <div className="loading-spinner"></div>
                                 <p>Carregando treinos...</p>
                             </div>
-                        ) : workouts.length === 0 ? (
-                            <div className="empty-state">
-                                <div className="empty-icon"><ClipboardList size={48} /></div>
-                                <h3>Nenhum treino nesta semana</h3>
-                                <p>Não há treinos agendados para {weekLabel}.</p>
-                                <button className="btn-primary" onClick={handleGeneratePlan}>
-                                    <Sparkles size={16} style={{ marginRight: '8px' }} /> Gerar Plano de Treinos
-                                </button>
-                            </div>
                         ) : (
                             <>
-                                {/* Week Navigation */}
+                                {/* Week Navigation — always visible */}
                                 <div className="week-nav">
                                     <button
                                         className="btn-secondary"
@@ -401,17 +392,30 @@ function Dashboard() {
                                     </button>
                                 </div>
 
-                                <div className="workouts-grid">
-                                    {workouts.map((workout) => (
-                                        <WorkoutCard key={workout.id} workout={workout} />
-                                    ))}
-                                </div>
-                                {hasMoreWorkouts && (
-                                    <div className="load-more-container">
-                                        <button className="btn-load-more" onClick={handleLoadMoreWorkouts} disabled={loading}>
-                                            {loading ? 'Carregando...' : 'Carregar mais treinos'}
+                                {workouts.length === 0 ? (
+                                    <div className="empty-state">
+                                        <div className="empty-icon"><ClipboardList size={48} /></div>
+                                        <h3>Nenhum treino nesta semana</h3>
+                                        <p>Não há treinos agendados para {weekLabel}.</p>
+                                        <button className="btn-primary" onClick={handleGeneratePlan}>
+                                            <Sparkles size={16} style={{ marginRight: '8px' }} /> Gerar Plano de Treinos
                                         </button>
                                     </div>
+                                ) : (
+                                    <>
+                                        <div className="workouts-grid">
+                                            {workouts.map((workout) => (
+                                                <WorkoutCard key={workout.id} workout={workout} />
+                                            ))}
+                                        </div>
+                                        {hasMoreWorkouts && (
+                                            <div className="load-more-container">
+                                                <button className="btn-load-more" onClick={handleLoadMoreWorkouts} disabled={loading}>
+                                                    {loading ? 'Carregando...' : 'Carregar mais treinos'}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </>
                                 )}
                             </>
                         )}
