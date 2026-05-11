@@ -17,6 +17,7 @@ interface GoalState {
     weeklyAvailability: number;
     availableDays: number[];
     additionalNotes: string;
+    contextNotes: string;
 }
 
 function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
@@ -32,7 +33,8 @@ function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
         currentLevel: 'intermediario',
         weeklyAvailability: 4,
         availableDays: [],
-        additionalNotes: ''
+        additionalNotes: '',
+        contextNotes: ''
     });
     const [saving, setSaving] = useState(false);
 
@@ -327,6 +329,18 @@ function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
                                 rows={3}
                                 placeholder="Ex: Prefiro treinos matinais, tenho uma dor leve no pé..."
                                 value={goalData.additionalNotes}
+                                onChange={handleChange}
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="contextNotes">Contexto para o Coach Virtual</label>
+                            <textarea
+                                id="contextNotes"
+                                name="contextNotes"
+                                rows={3}
+                                placeholder="Ex: Treino com minha namorada em pace 6:00-8:00, mas meu pace solo é 4:00-5:20. Ignorar corridas muito lentas para definir os treinos."
+                                value={goalData.contextNotes}
                                 onChange={handleChange}
                             />
                         </div>
