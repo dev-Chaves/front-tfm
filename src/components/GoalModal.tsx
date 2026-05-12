@@ -6,6 +6,7 @@ interface GoalModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSave: (goalData: any) => Promise<void>;
+    generatePlan?: boolean;
 }
 
 interface GoalState {
@@ -20,7 +21,7 @@ interface GoalState {
     contextNotes: string;
 }
 
-function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
+function GoalModal({ isOpen, onClose, onSave, generatePlan = true }: GoalModalProps) {
     const [currentStep, setCurrentStep] = useState(1);
     const lastStepChangeRef = useRef(0);
     const [hasTargetRace, setHasTargetRace] = useState(false);
@@ -105,7 +106,8 @@ function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
             // Transformar weeklyAvailability para string (backend espera string)
             const payload = {
                 ...goalData,
-                weeklyAvailability: String(goalData.weeklyAvailability)
+                weeklyAvailability: String(goalData.weeklyAvailability),
+                generatePlan,
             };
             await onSave(payload);
             onClose();
@@ -363,7 +365,7 @@ function GoalModal({ isOpen, onClose, onSave }: GoalModalProps) {
                             </button>
                         ) : (
                             <button type="submit" className="btn-save" disabled={saving}>
-                                {saving ? 'Salvando...' : <><Sparkles size={16} style={{ marginRight: '8px' }} /> Gerar Meu Plano</>}
+                                {saving ? 'Salvando...' : generatePlan ? <><Sparkles size={16} style={{ marginRight: '8px' }} /> Gerar Meu Plano</> : 'Salvar Meta'}
                             </button>
                         )}
                     </div>

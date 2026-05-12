@@ -60,6 +60,7 @@ function Dashboard() {
     const [error, setError] = useState<string | null>(null);
     const [isFirstLogin, setIsFirstLogin] = useState(false);
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+    const [goalModalMode, setGoalModalMode] = useState<'create' | 'edit'>('create');
     const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [activities, setActivities] = useState<ActivityResponseDTO[]>([]);
@@ -166,6 +167,7 @@ function Dashboard() {
     // Abrir modal de metas automaticamente no primeiro login
     useEffect(() => {
         if (isFirstLogin) {
+            setGoalModalMode('create');
             setIsGoalModalOpen(true);
         }
     }, [isFirstLogin]);
@@ -191,13 +193,16 @@ function Dashboard() {
     const handleSaveGoal = useCallback(async (goalData) => {
         try {
             await api.updateGoal(goalData);
-            setSuccessMessage('Sua meta foi definida com sucesso! Agora vamos criar um plano de treinos personalizado para você.');
+            setSuccessMessage(goalModalMode === 'create'
+                ? 'Sua meta foi definida com sucesso! Agora vamos criar um plano de treinos personalizado para você.'
+                : 'Meta atualizada com sucesso.'
+            );
             setIsSuccessPopupOpen(true);
         } catch (error) {
             console.error('Error saving goal:', error);
             setError('Erro ao salvar meta. Tente novamente.');
         }
-    }, []);
+    }, [goalModalMode]);
 
     const handleSync = useCallback(async () => {
         try {
@@ -254,7 +259,10 @@ function Dashboard() {
 
     const weekLabel = useMemo(() => formatWeekLabel(weekOffset), [weekOffset]);
 
-    const openGoalModal = useCallback(() => setIsGoalModalOpen(true), []);
+    const openGoalModal = useCallback(() => {
+        setGoalModalMode('edit');
+        setIsGoalModalOpen(true);
+    }, []);
     const closeGoalModal = useCallback(() => setIsGoalModalOpen(false), []);
     const closeSuccessPopup = useCallback(() => {
         setIsSuccessPopupOpen(false);
@@ -464,6 +472,7 @@ function Dashboard() {
                 isOpen={isGoalModalOpen}
                 onClose={closeGoalModal}
                 onSave={handleSaveGoal}
+                generatePlan={goalModalMode === 'create'}
             />
 
             <SuccessPopup
