@@ -199,6 +199,11 @@
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.form-group select option {
+    background: #1a1a2e;
+    color: #fff;
+}
+
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
