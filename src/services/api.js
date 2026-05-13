@@ -81,6 +81,12 @@ export const api = {
     return response.json();
   },
 
+  getOnboardingStatus: async () => {
+    const response = await fetchWithAuth('/users/onboarding');
+    if (!response.ok) throw new Error('Failed to get onboarding status');
+    return response.json();
+  },
+
   updateGoal: async (goal) => {
     const response = await fetchWithAuth('/users/goal', {
       method: 'PATCH',

@@ -5,6 +5,7 @@ import { setToken, getToken, removeToken, api } from '../services/api';
 import WorkoutCard from '../components/WorkoutCard';
 import ActivityCard from '../components/ActivityCard';
 import GoalModal from '../components/GoalModal';
+import ChallengeView from '../components/ChallengeView';
 import SuccessPopup from '../components/SuccessPopup';
 import { DashboardItem, ActivityResponseDTO } from '@shared/schemas';
 import {
@@ -61,6 +62,8 @@ function Dashboard() {
     const [isFirstLogin, setIsFirstLogin] = useState(false);
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
     const [goalModalMode, setGoalModalMode] = useState<'create' | 'edit'>('create');
+    const [showChallenge, setShowChallenge] = useState(false);
+    const [challengeCompleted, setChallengeCompleted] = useState(false);
     const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [activities, setActivities] = useState<ActivityResponseDTO[]>([]);
@@ -164,11 +167,20 @@ function Dashboard() {
         loadWorkoutsForWeek(weekOffset, 1);
     }, [weekOffset, loadWorkoutsForWeek]);
 
-    // Abrir modal de metas automaticamente no primeiro login
+    // Abrir modal de metas ou desafio automaticamente no primeiro login
     useEffect(() => {
         if (isFirstLogin) {
-            setGoalModalMode('create');
-            setIsGoalModalOpen(true);
+            api.getOnboardingStatus().then(status => {
+                if (status.needsChallenge) {
+                    setShowChallenge(true);
+                } else {
+                    setGoalModalMode('create');
+                    setIsGoalModalOpen(true);
+                }
+            }).catch(() => {
+                setGoalModalMode('create');
+                setIsGoalModalOpen(true);
+            });
         }
     }, [isFirstLogin]);
 
@@ -209,6 +221,11 @@ function Dashboard() {
             setSyncing(true);
             setSyncMessage(null);
             const result = await api.syncActivities();
+
+            if (showChallenge && result?.challengeCompleted) {
+                setChallengeCompleted(true);
+            }
+
             if (result && result.new_activities_linked !== undefined) {
                 setSyncMessage(`${result.message || 'Sincronização realizada!'}`);
             } else {
@@ -222,7 +239,7 @@ function Dashboard() {
             setSyncing(false);
             setTimeout(() => setSyncMessage(null), 5000);
         }
-    }, [loadActivities]);
+    }, [loadActivities, showChallenge]);
 
     const handleLoadMoreWorkouts = useCallback(() => {
         loadWorkoutsForWeek(weekOffset, workoutPage + 1);
@@ -264,6 +281,11 @@ function Dashboard() {
         setIsGoalModalOpen(true);
     }, []);
     const closeGoalModal = useCallback(() => setIsGoalModalOpen(false), []);
+    const handleChallengeProceed = useCallback(() => {
+        setShowChallenge(false);
+        setGoalModalMode('create');
+        setIsGoalModalOpen(true);
+    }, []);
     const closeSuccessPopup = useCallback(() => {
         setIsSuccessPopupOpen(false);
         if (isFirstLogin) {
@@ -311,6 +333,35 @@ function Dashboard() {
             )}
 
             <main className="dashboard-content">
+                {showChallenge ? (
+                    <>
+                        <ChallengeView
+                            syncing={syncing}
+                            onSync={handleSync}
+                            challengeCompleted={challengeCompleted}
+                            onProceedToGoal={handleChallengeProceed}
+                        />
+                        {!challengeCompleted && (
+                            <p className="challenge-skip" style={{ textAlign: 'center', marginTop: '1rem' }}>
+                                <button
+                                    onClick={() => setShowChallenge(false)}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: 'rgba(255,255,255,0.4)',
+                                        cursor: 'pointer',
+                                        fontSize: '0.85rem',
+                                        textDecoration: 'underline',
+                                        padding: '0.5rem',
+                                    }}
+                                >
+                                    Pular desafio, quero configurar minha meta agora
+                                </button>
+                            </p>
+                        )}
+                    </>
+                ) : (
+                    <>
                 {isFirstLogin && (
                     <div className="welcome-banner">
                         <h2><Sparkles size={24} style={{ display: 'inline', marginRight: '8px' }} /> Bem-vindo ao TFM!</h2>
@@ -454,6 +505,8 @@ function Dashboard() {
                                 )}
                             </>
                         )}
+                    </>
+                )}
                     </>
                 )}
             </main>
