@@ -264,6 +264,8 @@ function Dashboard() {
             await api.updateGoal(goalData);
             setSuccessMessage(goalModalMode === 'create'
                 ? 'Sua meta foi definida com sucesso! Agora vamos criar um plano de treinos personalizado para você.'
+                : goalModalMode === 'skip-challenge'
+                ? 'Sua meta foi definida! Gere seu plano de treinos clicando em "Gerar Novo Plano" e informe seus paces.'
                 : 'Meta atualizada com sucesso.'
             );
             setIsSuccessPopupOpen(true);
@@ -343,6 +345,11 @@ function Dashboard() {
         setGoalModalMode('create');
         setIsGoalModalOpen(true);
     }, []);
+    const handleSkipChallenge = useCallback(() => {
+        setShowChallenge(false);
+        setGoalModalMode('skip-challenge');
+        setIsGoalModalOpen(true);
+    }, []);
     const closeSuccessPopup = useCallback(() => {
         setIsSuccessPopupOpen(false);
         if (isFirstLogin) {
@@ -397,25 +404,8 @@ function Dashboard() {
                             onSync={handleSync}
                             challengeCompleted={challengeCompleted}
                             onProceedToGoal={handleChallengeProceed}
+                            onSkip={handleSkipChallenge}
                         />
-                        {!challengeCompleted && (
-                            <p className="challenge-skip" style={{ textAlign: 'center', marginTop: '1rem' }}>
-                                <button
-                                    onClick={() => setShowChallenge(false)}
-                                    style={{
-                                        background: 'none',
-                                        border: 'none',
-                                        color: 'rgba(255,255,255,0.4)',
-                                        cursor: 'pointer',
-                                        fontSize: '0.85rem',
-                                        textDecoration: 'underline',
-                                        padding: '0.5rem',
-                                    }}
-                                >
-                                    Pular desafio, quero configurar minha meta agora
-                                </button>
-                            </p>
-                        )}
                     </>
                 ) : (
                     <>

@@ -1,4 +1,4 @@
-import { RefreshCw, CheckCircle, Footprints, Target } from 'lucide-react';
+import { RefreshCw, CheckCircle, Activity, HeartPulse, Zap, Target, ArrowRight } from 'lucide-react';
 import './ChallengeView.css';
 
 interface ChallengeViewProps {
@@ -6,41 +6,56 @@ interface ChallengeViewProps {
     onSync: () => void;
     challengeCompleted: boolean;
     onProceedToGoal: () => void;
+    onSkip: () => void;
 }
 
-function ChallengeView({ syncing, onSync, challengeCompleted, onProceedToGoal }: ChallengeViewProps) {
+function ChallengeView({ syncing, onSync, challengeCompleted, onProceedToGoal, onSkip }: ChallengeViewProps) {
     return (
         <div className="challenge-view">
             <div className="challenge-card">
+                <div className="challenge-badge">
+                    <Activity size={14} />
+                    <span>Recomendação Científica</span>
+                </div>
+
                 <div className="challenge-icon">
-                    {challengeCompleted ? <CheckCircle size={48} /> : <Footprints size={48} />}
+                    {challengeCompleted ? <CheckCircle size={48} /> : <Activity size={48} />}
                 </div>
 
                 <h2 className="challenge-title">
-                    {challengeCompleted ? 'Desafio Completo!' : 'Desafio Inicial'}
+                    {challengeCompleted
+                        ? 'Avaliação Concluída!'
+                        : 'Avaliação de Condicionamento Inicial'}
                 </h2>
 
                 <p className="challenge-desc">
                     {challengeCompleted
-                        ? 'Parabéns! Você completou sua primeira corrida. Agora vamos criar seu plano de treino personalizado!'
-                        : 'Complete sua primeira corrida para desbloquear seu plano de treino personalizado com IA.'}
+                        ? 'Sua avaliação de 3km foi registrada. Agora a IA tem dados reais para criar um plano 100% personalizado para você!'
+                        : 'Para gerar um plano de treino preciso, a ciência do esporte recomenda uma avaliação inicial mínima de 3km. Isso permite que nossa IA meça seu condicionamento real.'}
                 </p>
 
                 {!challengeCompleted && (
-                    <div className="challenge-steps">
-                        <div className="challenge-step">
-                            <span className="step-number">1</span>
-                            <span>Vá correr! Qualquer distância já conta.</span>
+                    <>
+                        <div className="challenge-benefits">
+                            <div className="benefit-item">
+                                <HeartPulse size={18} />
+                                <span>FC em esforço real</span>
+                            </div>
+                            <div className="benefit-item">
+                                <Zap size={18} />
+                                <span>Pace médio real</span>
+                            </div>
+                            <div className="benefit-item">
+                                <Activity size={18} />
+                                <span>Zonas de treino ideais</span>
+                            </div>
                         </div>
-                        <div className="challenge-step">
-                            <span className="step-number">2</span>
-                            <span>Sincronize sua atividade do Strava.</span>
+
+                        <div className="challenge-cta-box">
+                            <p className="cta-title">🔬 Desafio: Corra 3km</p>
+                            <p className="cta-subtitle">Qualquer distância a partir de 3km ativa a avaliação automática</p>
                         </div>
-                        <div className="challenge-step">
-                            <span className="step-number">3</span>
-                            <span>Receba um plano de treinos feito sob medida para você!</span>
-                        </div>
-                    </div>
+                    </>
                 )}
 
                 <div className="challenge-actions">
@@ -50,11 +65,22 @@ function ChallengeView({ syncing, onSync, challengeCompleted, onProceedToGoal }:
                         </button>
                     ) : (
                         <button className="btn-challenge-sync" onClick={onSync} disabled={syncing}>
-                            <RefreshCw size={18} className={syncing ? 'spin' : ''} />
-                            {syncing ? 'Sincronizando...' : 'Sincronizar Strava'}
+                            {syncing ? (
+                                <><RefreshCw size={18} className="spin" /> Sincronizando...</>
+                            ) : (
+                                <><Activity size={18} /> Fazer Avaliação de 3km <ArrowRight size={18} /></>
+                            )}
                         </button>
                     )}
                 </div>
+
+                {!challengeCompleted && (
+                    <p className="challenge-skip-text">
+                        <button onClick={onSkip}>
+                            Pular avaliação e gerar plano manualmente <ArrowRight size={14} />
+                        </button>
+                    </p>
+                )}
             </div>
         </div>
     );
