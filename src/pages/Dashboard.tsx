@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import Swal from 'sweetalert2';
 import { useTutorial } from '../hooks/useTutorial';
 import { useNavigate } from 'react-router-dom';
 import { setToken, getToken, removeToken, api } from '../services/api';
@@ -191,6 +192,62 @@ function Dashboard() {
 
     const handleGeneratePlan = useCallback(async () => {
         try {
+            const status = await api.getOnboardingStatus();
+            if (!status.hasActivities) {
+                const result = await Swal.fire({
+                    icon: 'warning',
+                    title: 'Atenção',
+                    html: `
+                        <p style="margin-bottom:0.75rem;color:#e2e8f0">
+                            Você não tem atividades registradas no Strava.
+                            O plano gerado pode não ser tão personalizado para você.
+                        </p>
+                        <p style="margin-bottom:1.25rem;color:#94a3b8">
+                            Para um plano mais preciso, informe seus paces abaixo:
+                        </p>
+                        <div style="display:flex;flex-direction:column;gap:0.75rem;text-align:left">
+                            <label style="color:#e2e8f0;font-weight:600;font-size:0.9rem">
+                                Seu pace atual (min/km)
+                            </label>
+                            <input id="swal-current-pace" class="swal2-input" placeholder="6:30"
+                                style="width:100%;margin:0;background:#1a1a2e;color:#fff;border:1px solid rgba(255,255,255,0.1)">
+                            <label style="color:#e2e8f0;font-weight:600;font-size:0.9rem;margin-top:0.25rem">
+                                Pace que quer chegar (min/km)
+                            </label>
+                            <input id="swal-target-pace" class="swal2-input" placeholder="5:00"
+                                style="width:100%;margin:0;background:#1a1a2e;color:#fff;border:1px solid rgba(255,255,255,0.1)">
+                        </div>
+                    `,
+                    background: '#0f0f1a',
+                    color: '#e2e8f0',
+                    showCancelButton: true,
+                    confirmButtonText: 'Continuar mesmo assim',
+                    confirmButtonColor: '#fc4c02',
+                    cancelButtonText: 'Cancelar',
+                    cancelButtonColor: '#475569',
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        const c = (document.getElementById('swal-current-pace') as HTMLInputElement).value.trim();
+                        const t = (document.getElementById('swal-target-pace') as HTMLInputElement).value.trim();
+                        if (!c || !t) {
+                            Swal.showValidationMessage('Preencha ambos os campos de pace');
+                            return false;
+                        }
+                        if (!/^\d{1,2}:\d{2}$/.test(c) || !/^\d{1,2}:\d{2}$/.test(t)) {
+                            Swal.showValidationMessage('Formato inválido — use mm:ss (ex: 6:30)');
+                            return false;
+                        }
+                        return { currentPace: c, targetPace: t };
+                    },
+                });
+
+                if (!result.isConfirmed) return;
+                setLoading(true);
+                await api.generateWorkoutPlan(result.value);
+                await loadWorkoutsForWeek(weekOffset, 1);
+                return;
+            }
+
             setLoading(true);
             await api.generateWorkoutPlan();
             await loadWorkoutsForWeek(weekOffset, 1);

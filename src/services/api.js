@@ -63,8 +63,12 @@ export const api = {
     return response.json();
   },
 
-  generateWorkoutPlan: async () => {
-    const response = await fetchWithAuth('/ai/workout');
+  generateWorkoutPlan: async (options) => {
+    const params = new URLSearchParams();
+    if (options?.currentPace) params.append('currentPace', options.currentPace);
+    if (options?.targetPace) params.append('targetPace', options.targetPace);
+    const query = params.toString() ? `?${params.toString()}` : '';
+    const response = await fetchWithAuth(`/ai/workout${query}`);
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || 'Falha ao gerar plano de treino');
