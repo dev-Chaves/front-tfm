@@ -62,7 +62,7 @@ function Dashboard() {
     const [error, setError] = useState<string | null>(null);
     const [isFirstLogin, setIsFirstLogin] = useState(false);
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
-    const [goalModalMode, setGoalModalMode] = useState<'create' | 'edit'>('create');
+    const [goalModalMode, setGoalModalMode] = useState<'create' | 'edit' | 'challenge-create'>('create');
     const [showChallenge, setShowChallenge] = useState(false);
     const [challengeCompleted, setChallengeCompleted] = useState(false);
     const [isSuccessPopupOpen, setIsSuccessPopupOpen] = useState(false);
@@ -75,6 +75,12 @@ function Dashboard() {
     const [workoutPage, setWorkoutPage] = useState(1);
     const [hasMoreWorkouts, setHasMoreWorkouts] = useState(true);
     const [hasMoreActivities, setHasMoreActivities] = useState(true);
+    const challengeInitialGoalData = {
+        raceDistance: '5k',
+        currentLevel: 'iniciante',
+        weeklyAvailability: 3,
+    };
+
     const PAGE_SIZE = 5;
     const { startTutorial } = useTutorial();
     const isAutoAdvancing = useRef(false);
@@ -262,7 +268,7 @@ function Dashboard() {
     const handleSaveGoal = useCallback(async (goalData) => {
         try {
             await api.updateGoal(goalData);
-            setSuccessMessage(goalModalMode === 'create'
+            setSuccessMessage(goalModalMode === 'create' || goalModalMode === 'challenge-create'
                 ? 'Sua meta foi definida com sucesso! Agora vamos criar um plano de treinos personalizado para você.'
                 : goalModalMode === 'skip-challenge'
                 ? 'Sua meta foi definida! Gere seu plano de treinos clicando em "Gerar Novo Plano" e informe seus paces.'
@@ -342,7 +348,7 @@ function Dashboard() {
     const closeGoalModal = useCallback(() => setIsGoalModalOpen(false), []);
     const handleChallengeProceed = useCallback(() => {
         setShowChallenge(false);
-        setGoalModalMode('create');
+        setGoalModalMode('challenge-create');
         setIsGoalModalOpen(true);
     }, []);
     const handleSkipChallenge = useCallback(() => {
@@ -572,7 +578,8 @@ function Dashboard() {
                 isOpen={isGoalModalOpen}
                 onClose={closeGoalModal}
                 onSave={handleSaveGoal}
-                generatePlan={goalModalMode === 'create'}
+                generatePlan={goalModalMode === 'create' || goalModalMode === 'challenge-create'}
+                initialData={goalModalMode === 'challenge-create' ? challengeInitialGoalData : undefined}
             />
 
             <SuccessPopup

@@ -7,6 +7,7 @@ interface GoalModalProps {
     onClose: () => void;
     onSave: (goalData: any) => Promise<void>;
     generatePlan?: boolean;
+    initialData?: Partial<GoalState>;
 }
 
 interface GoalState {
@@ -21,21 +22,21 @@ interface GoalState {
     contextNotes: string;
 }
 
-function GoalModal({ isOpen, onClose, onSave, generatePlan = true }: GoalModalProps) {
+function GoalModal({ isOpen, onClose, onSave, generatePlan = true, initialData }: GoalModalProps) {
     const [currentStep, setCurrentStep] = useState(1);
     const lastStepChangeRef = useRef(0);
     const [hasTargetRace, setHasTargetRace] = useState(false);
     const [stepError, setStepError] = useState('');
     const [goalData, setGoalData] = useState<GoalState>({
-        targetRace: '',
-        raceDistance: '',
-        targetTime: '',
-        raceDate: '',
-        currentLevel: 'intermediario',
-        weeklyAvailability: 4,
-        availableDays: [],
-        additionalNotes: '',
-        contextNotes: ''
+        targetRace: initialData?.targetRace ?? '',
+        raceDistance: initialData?.raceDistance ?? '',
+        targetTime: initialData?.targetTime ?? '',
+        raceDate: initialData?.raceDate ?? '',
+        currentLevel: initialData?.currentLevel ?? 'intermediario',
+        weeklyAvailability: initialData?.weeklyAvailability ?? 4,
+        availableDays: initialData?.availableDays ?? [],
+        additionalNotes: initialData?.additionalNotes ?? '',
+        contextNotes: initialData?.contextNotes ?? ''
     });
     const [saving, setSaving] = useState(false);
 
