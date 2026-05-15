@@ -623,6 +623,67 @@
     flex-shrink: 0;
 }
 
+/* Feedback Retry Section */
+.feedback-retry-section {
+    margin-bottom: 1rem;
+}
+
+.feedback-retry-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 12px;
+    color: #818cf8;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.feedback-retry-button:hover:not(:disabled) {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.5);
+}
+
+.feedback-retry-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.feedback-retry-success {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.2);
+    border-radius: 12px;
+    color: #34d399;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.feedback-retry-error {
+    margin: 0.5rem 0 0;
+    font-size: 0.8rem;
+    color: #f87171;
+    text-align: center;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
 /* Responsive */
 @media (max-width: 500px) {
     .workout-card {

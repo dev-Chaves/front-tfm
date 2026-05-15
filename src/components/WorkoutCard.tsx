@@ -17,9 +17,11 @@ import {
     Brain,
     Bot,
     Check,
-    AlertCircle
+    AlertCircle,
+    Loader
 } from 'lucide-react';
 import { DashboardItem } from '@shared/schemas';
+import api from '../services/api';
 import './WorkoutCard.css';
 
 interface WorkoutCardProps {
@@ -29,6 +31,9 @@ interface WorkoutCardProps {
 const WorkoutCard = memo(function WorkoutCard({ workout }: WorkoutCardProps) {
     const [expanded, setExpanded] = useState(false);
     const [showHowTo, setShowHowTo] = useState(false);
+    const [requestingFeedback, setRequestingFeedback] = useState(false);
+    const [feedbackRequested, setFeedbackRequested] = useState(false);
+    const [feedbackRequestError, setFeedbackRequestError] = useState<string | null>(null);
 
     // Extract fields from DashboardItem
     const {
@@ -93,6 +98,19 @@ const WorkoutCard = memo(function WorkoutCard({ workout }: WorkoutCardProps) {
         if (score >= 8) return 'score-high';
         if (score >= 5) return 'score-medium';
         return 'score-low';
+    };
+
+    const handleRequestFeedback = async () => {
+        setRequestingFeedback(true);
+        setFeedbackRequestError(null);
+        try {
+            await api.requestFeedbackRetry(workout.id);
+            setFeedbackRequested(true);
+        } catch (error) {
+            setFeedbackRequestError(error instanceof Error ? error.message : 'Erro ao solicitar feedback');
+        } finally {
+            setRequestingFeedback(false);
+        }
     };
 
     // Get values with fallbacks
@@ -315,6 +333,35 @@ const WorkoutCard = memo(function WorkoutCard({ workout }: WorkoutCardProps) {
                         <span className="result-separator">•</span>
                         <span className="result-value">{pace_realizado}/km</span>
                     </div>
+                </div>
+            )}
+
+            {/* Request Feedback Button (when completed but no feedback) */}
+            {effectiveStatus === 'Concluido' && !coach && (
+                <div className="feedback-retry-section">
+                    {feedbackRequested ? (
+                        <div className="feedback-retry-success">
+                            <Check size={16} />
+                            <span>Feedback solicitado — será gerado em breve</span>
+                        </div>
+                    ) : (
+                        <>
+                            <button
+                                className="feedback-retry-button"
+                                onClick={handleRequestFeedback}
+                                disabled={requestingFeedback}
+                            >
+                                {requestingFeedback ? (
+                                    <><Loader size={16} className="spin" /> Solicitando...</>
+                                ) : (
+                                    <><RotateCw size={16} /> Solicitar Feedback do Coach</>
+                                )}
+                            </button>
+                            {feedbackRequestError && (
+                                <p className="feedback-retry-error">{feedbackRequestError}</p>
+                            )}
+                        </>
+                    )}
                 </div>
             )}
 

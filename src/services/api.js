@@ -99,6 +99,17 @@ export const api = {
     if (!response.ok) throw new Error('Failed to update goal');
     return response.json();
   },
+
+  requestFeedbackRetry: async (workoutId) => {
+    const response = await fetchWithAuth(`/workouts/${workoutId}/feedback-retry`, {
+      method: 'POST',
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Erro ao solicitar feedback');
+    }
+    return response.json();
+  },
 };
 
 export default api;
